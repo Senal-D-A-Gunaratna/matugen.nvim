@@ -54,7 +54,18 @@ post_hook = "pkill -SIGUSR1 nvim"
 
 **4. Hyprland opacity** _(optional but recommended)_
 
-Without blur and opacity, transparency won't look right:
+To get proper transparency in Neovim without ruining your regular terminal opacity, use [hyprfade.nvim](https://github.com/Senal-D-A-Gunaratna/hyprfade.nvim)
+
+Why use this instead of raw Hyprland config (hl.window_rule)?
+Standard Hyprland rules rely on window class or title matches (e.g., matching title:^nvim$). This breaks easily because:
+
+- Inconsistent Titles: Launching Neovim from a file manager (like Yazi), a subshell, or an alias often fails to update the window title before Hyprland applies the rule.
+
+- All-or-Nothing Terminal Transparency: Hyprland rules make your entire terminal transparent all the time.
+
+- Dynamic Control: hyprfade.nvim dynamically sets transparency only when Neovim is active, restoring normal terminal opacity as soon as you exit.
+
+Or use the native lua config
 
 ```lua
 hl.window_rule({
@@ -140,6 +151,13 @@ The following plugins are supported via built‑in templates in
 All highlight groups derive from a single semantic palette in
 `lua/matugen/palette.lua`. Adding support for a new plugin or UI component
 stays consistent by design
+
+The cursor is themed per mode: normal/command/visual use `primary`, insert and
+operator-pending use `tertiary`, visual-only selections use `secondary`, and
+replace mode uses `error`. The block cursor color works in any terminal, but
+per-mode cursor colors require a terminal that honors cursor colors (e.g.
+kitty, wezterm, foot). Terminals that ignore them (e.g. GNOME Terminal,
+alacritty) keep a plain cursor
 
 To extend it, see [Creating Custom Templates](doc/TEMPLATES.md)
 

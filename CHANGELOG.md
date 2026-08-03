@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Per-mode cursor theming** via `guicursor`. The block cursor uses `primary`
+  for normal/command/visual modes, `tertiary` for insert and operator-pending,
+  `secondary` for visual selections, and `error` for replace mode. Defined in
+  `lua/matugen/templates/editor.lua`.
 - **Template system** with split modules for individual plugins organized under
   `lua/matugen/templates/`: nvim-cmp, neo-tree, nvim-tree, oil.nvim, mini.nvim,
   dropbar.nvim, barbecue.nvim, aerial.nvim, zen-mode, twilight, diffview,
