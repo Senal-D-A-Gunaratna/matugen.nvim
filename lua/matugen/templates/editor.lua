@@ -14,7 +14,6 @@ return function(c, hl)
   hl("oCursor", { fg = c.on_primary, bg = c.tertiary })
   hl("lCursor", { fg = c.on_primary, bg = c.tertiary })
   hl("smCursor", { fg = c.on_primary, bg = c.primary })
-  vim.opt.guicursor = "n-v-c:block-Cursor,i-ci-ve:ver25-iCursor,r-cr:hor20-rCursor,o:hor50-oCursor,sm:block-smCursor,a:blinkwait175-blinkoff150-blinkon175"
   hl("CursorLine", { bg = c.surface_high })
   hl("CursorLineNr", { fg = c.primary, bold = true })
   hl("LineNr", { fg = c.outline })
