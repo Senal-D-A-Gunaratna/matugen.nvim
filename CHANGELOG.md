@@ -55,6 +55,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Terminal cursor color no longer falls back to default.** Neovim now uses
+  the real host-terminal cursor in Terminal mode instead of a virtual one
+  (neovim/neovim#31562), and the default `guicursor` maps Terminal mode to the
+  `TermCursor` highlight group via a `t:` entry. Added
+  `t:block-TermCursor` to the `guicursor` string in `setup()` so matugen's
+  `TermCursor` color is applied. Removed the now-dead `TermCursorNC` highlight
+  definition. `termguicolors` is also enabled in `setup()` since cursor color
+  (not shape) requires it.
 - **Security:** Template loading pinned to plugin's own directory.
 - **Security:** Palette path anonymized in globals; status leak dropped.
 - **Security:** `jsonc_path` extension validated and path reused expanded.

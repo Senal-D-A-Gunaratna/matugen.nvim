@@ -281,7 +281,8 @@ function M.setup(opts)
 		palette_path = "",
 		load_theme = true,
 	}, opts or {})
-	vim.opt.guicursor = "n-v-c:block-Cursor,i-ci-ve:ver25-iCursor,r-cr:hor20-rCursor,o:hor50-oCursor,sm:block-smCursor,a:blinkwait175-blinkoff150-blinkon175"
+	vim.opt.guicursor = "n-v-c:block-Cursor,i-ci-ve:ver25-iCursor,r-cr:hor20-rCursor,o:hor50-oCursor,sm:block-smCursor,t:block-TermCursor,a:blinkwait175-blinkoff150-blinkon175"
+	vim.opt.termguicolors = true
 	if M.opts.load_theme then
 		M.load_theme(false) -- Non-blocking async load at startup
 	end
