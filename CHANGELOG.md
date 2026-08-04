@@ -2,9 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+
+- **Per-mode cursor theming** via `guicursor`. The block cursor uses `primary`
+  for normal/command modes, `tertiary` for insert and operator-pending,
+  `secondary` for visual selections, and `error` for replace mode. Cursor
+  highlight groups are defined in `lua/matugen/templates/editor.lua` and the
+  `guicursor` string is set once in `setup()`.
+
+### Fixed
+
+- **Terminal cursor color no longer falls back to default.** Neovim now maps
+  Terminal mode to the `TermCursor` highlight group via a `t:` entry in
+  `guicursor`, so matugen's `TermCursor` color is applied. Removed the
+  now-dead `TermCursorNC` highlight definition. `termguicolors` is enabled in
+  `setup()` since cursor color (not shape) requires it.
+
+### Changed
+
+- **CI replaced with luacheck + typecheck pipeline** (bunson.nvim style).
+  `lua-language-server` is downloaded with retries and an auth token; it runs
+  against `lua/`, `plugin/`, and `colors/` and fails on severity-1 diagnostics.
+- **Removed `.gitignore` from tracking**; the remaining ignore rules
+  (`cspell.json`, `.neovim-stubs/`) are implicit.
+- **Docs updated** to point `palette_path` at the matugen cache directory
+  (`~/.cache/matugen/nvim-colors.json`).
+
+## [2026-07-19] — test tooling cleanup
+
+### Removed
+
+- **Plenary.nvim dependency and the test workflow.**
+- **Trivial test directory** and the **validator test file** (the CI pipeline
+  now validates the palette directly instead of via unit tests).
+- Test target from the Makefile.
+
+### Changed
+
+- Resolved all luacheck warnings.
+- Wrapped `README.md` at 80 characters.
+- Rewrote the changelog to cover the full project history.
+
+## [2026-07-16] — breaking palette keys and signal debounce removal
 
 ### ⚠ BREAKING CHANGES
 
@@ -18,120 +62,185 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `require("matugen").setup({ palette_path = "..." })`.
 - **Removed `:MatugenStatus` command.** Use `:checkhealth matugen` instead.
 
+### Changed
+
+- **Removed the SIGUSR1 debounce timer entirely**, after reducing it from
+  300ms → 100ms → 50ms, in favor of a trailing-edge debounce.
+- Formatted `nvim-colors.json` with 2-space indentation.
+- Removed the VS Code Parity section from the README.
+
 ### Added
 
-- **Per-mode cursor theming** via `guicursor`. The block cursor uses `primary`
-  for normal/command/visual modes, `tertiary` for insert and operator-pending,
-  `secondary` for visual selections, and `error` for replace mode. Defined in
-  `lua/matugen/templates/editor.lua`.
-- **Template system** with split modules for individual plugins organized under
-  `lua/matugen/templates/`: nvim-cmp, neo-tree, nvim-tree, oil.nvim, mini.nvim,
-  dropbar.nvim, barbecue.nvim, aerial.nvim, zen-mode, twilight, diffview,
-  lazygit, fzf-lua, avante.nvim, render-markdown, todo-comments, flash.nvim,
-  dressing.nvim, and indent-blankline.
-- **Palette validator** (`lua/matugen/validator.lua`). Colors are validated
-  before loading the theme. Invalid hex values or missing keys fall back to
-  `fallback_palette` instead of crashing.
-- **Support for `#RGBA` (4-hex-digit) color format** in the validator and
-  `hex()` normalizer.
-- **`:checkhealth` integration** for diagnostic checks.
-- **SIGUSR1 signal debouncing** to prevent rapid flicker on reload.
-- **Template function caching** across reloads for better performance.
-- **Dual sync/async loading** with recursion guard via caching bypass.
-- **Trailing-edge debounce** for SIGUSR1 signal and reload notifications.
-- **Generation counter** to discard stale async palette reads.
-- **Robust fallback color scheme** with graceful degradation on load failure.
-- **`nvim-colors.json`** bundled in the repository (moved from GitHub Gist).
-- **Test suite** with initial specs for setup and error handling
-  (`tests/matugen_spec.lua`, `tests/minimal_init.lua`).
-- **GitHub Actions CI** (`.github/workflows/tests.yml`) running tests on
-  pushes/PRs to `main`.
-- **`.github/Makefile`** with `test` target for local headless test execution.
-- **Lua syntax validation and luacheck** in CI pipeline.
-- **Plenary.nvim-based validator test suite.**
-- **`.luarc.json`** with proper LSP settings for local development.
-- **AGENTS.md** with commit discipline and conventional commits rules.
-- **opencode configuration** with commit-on-each-step instructions.
+- `AGENTS.md` documenting commit discipline and conventional commits (with the
+  `BRAKING_CHANGES!` type).
+- opencode configuration with commit-on-each-step instructions.
+
+## [2026-07-15] — trailing-edge debounce
 
 ### Fixed
 
-- **Terminal cursor color no longer falls back to default.** Neovim now uses
-  the real host-terminal cursor in Terminal mode instead of a virtual one
-  (neovim/neovim#31562), and the default `guicursor` maps Terminal mode to the
-  `TermCursor` highlight group via a `t:` entry. Added
-  `t:block-TermCursor` to the `guicursor` string in `setup()` so matugen's
-  `TermCursor` color is applied. Removed the now-dead `TermCursorNC` highlight
-  definition. `termguicolors` is also enabled in `setup()` since cursor color
-  (not shape) requires it.
-- **Security:** Template loading pinned to plugin's own directory.
-- **Security:** Palette path anonymized in globals; status leak dropped.
-- **Security:** `jsonc_path` extension validated and path reused expanded.
-- **Security:** `opts` validated in `setup()` with defaults.
-- JSONC line comments at byte 0 of a file are now correctly stripped.
-- Broken regex in `is_valid_hex` replaced with explicit length checks.
-- Non-hex color values no longer cause false validation failures.
-- Deduplicated invalid-palette warning on cache replay (shown once per
-  session instead of on every signal reload).
-- Loop variable renamed to avoid shadowing Lua's global `type()`.
-- Removed spurious warning when `load_theme` is set to `false`.
-- Removed unrelated `winblend` autocmd from `plugin/matugen.lua`.
-- Always re-apply all template highlights on reload (removed incremental
-  `hlID` guard that could miss groups removed by other plugins).
-- Duplicate `Normal` highlight definition removed.
-- Templates re-applied on Mason `FileType` event.
-- Template cache cleared on manual `:MatugenReload`.
-- Recursion guard replaced with caching bypass to prevent double load.
-- Safer JSONC comment stripping to avoid clobbering string values.
-- `load_theme()` used in reload paths; double-require removed.
-- `prevent crash when jsonc_path is nil`.
-- Deferred reload notification until theme is actually applied.
-- Floating window backgrounds made opaque.
+- **Trailing-edge debounce** for the SIGUSR1 signal and reload notifications,
+  preventing duplicate reloads and stale notifications when multiple signals
+  arrive in quick succession.
+
+## [2026-07-14] — reload robustness
+
+### Added
+
+- **Generation counter** to discard stale async palette reads that complete out
+  of order.
+- Demo video section in the README.
+
+### Fixed
+
+- Deferred the reload notification until the theme is actually applied (later
+  reverted, then re-landed inside the debounced apply callback).
+
+## [2026-07-11] — CI expansion
+
+### Added
+
+- Lua syntax validation step to the CI pipeline.
+- Validator test suite (Plenary.nvim-based) and a dedicated test palette file.
+- Palette-file verification step in CI, run against `.github/nvim-colors.json`.
 
 ### Changed
 
-- **Major refactor:** Palette logic moved to `lua/matugen/palette.lua` with
-  decoupled architecture. Template placeholders changed from `.hex` suffix
-  to direct color variable names.
-- **`nvim-template.jsonc`** renamed to `nvim-colors.jsonc`, then migrated to
-  `nvim-colors.json` (plain JSON).
-- **README rewritten** for decoupled architecture and cross-editor color
-  parity, with supported plugins section, collapsible plugin list, and demo
-  video links.
-- **Validator moved from `tests/` to `lua/matugen/`**, replacing `dofile`-based
-  loading with standard `require`.
-- **Extracted JSONC comment stripper** into `lua/matugen/jsonc.lua` — shared
-  by `init.lua` and `health.lua`.
-- **Hoisted `hex()`** from inside `_apply_highlights` to module level.
-- **Added `---@param` / `---@return` type annotations** to public API.
-- **Moved hex validation** from `palette.lua` to `validator.lua`.
-- **Moved required-keys list** from `palette.lua` to `validator.lua`.
-- **Moved fallback logic** from `palette.lua` to `init.lua`.
-- **Bypass palette.lua entirely** when validator rejects raw palette values.
-- **Template loading switched from `vim.fn.glob` to `vim.fn.resolve`** for
-  better performance, later to `vim.fs.dir`.
-- **Removed per-file `vim.fn.resolve` calls** by resolving template dir once.
-- **Deduplicated `fallback_palette` merge** into a single post-resolution step.
-- **Removed unused `vim.g` writes** that triggered global `OptionSet` events.
-- **Reduced SIGUSR1 debounce** from 300ms → 100ms → 50ms, then removed the
-  single-fire debounce timer entirely in favor of trailing-edge debounce.
+- Moved the Makefile and check-syntax script into `.github/`.
+
+## [2026-07-10] — validator, RGBA, and async loading
+
+### Added
+
+- **Palette validator** (moved from `tests/` to `lua/matugen/validator.lua`).
+  Colors are validated before loading the theme; invalid hex values or missing
+  keys fall back to `fallback_palette` instead of crashing.
+- **Support for `#RGBA` (4-hex-digit) color format** in the validator and
+  `hex()` normalizer. The normalizer also handles `#RGB` and `#RRGGBBAA`.
+- **Async startup** — the palette file is read via `vim.uv` and highlight
+  application is deferred with `vim.schedule`, so startup is non-blocking.
+- **GitHub Actions workflow** and a **Makefile** for local headless testing,
+  with a `minimal_init.lua` runner.
+- `:checkhealth` reports template count, palette path, and last-reload status.
+
+### Fixed
+
+- Broken regex in `is_valid_hex` replaced with explicit length checks.
+- Non-hex color values no longer cause false validation failures.
+- Deduplicated invalid-palette warning on cache replay.
+- Loop variable renamed to avoid shadowing Lua's global `type()`.
+- Removed spurious warning when `load_theme` is set to `false`.
+- Removed unrelated `winblend` autocmd from `plugin/matugen.lua`.
+- Always re-apply all template highlights on reload; templates are re-applied
+  on the Mason `FileType` event.
+- Duplicate `Normal` highlight definition removed.
+- Removed unused `vim.g` writes that triggered global `OptionSet` events.
+- Deduplicated `fallback_palette` merge into a single post-resolution step.
+- Removed per-file `vim.fn.resolve` calls by resolving the template dir once.
+
+## [2026-07-07] — palette_path rename and JSONC stripper
+
+### ⚠ BREAKING CHANGES
+
+- **`jsonc_path` renamed to `palette_path`**, and the JSONC stripper is
+  auto-bypassed for `.json` files.
+
+### Added
+
+- **JSONC comment stripper extracted** into `lua/matugen/jsonc.lua`, shared by
+  `init.lua` and `health.lua`, with a fix for comments at byte 0 of a file.
+
+### Changed
+
+- Hoisted `hex()` from inside `_apply_highlights` to module level.
+- Added `---@param` / `---@return` type annotations to the public API.
+- Enhanced `.luarc.json` with proper LSP settings.
+- `:MatugenReload` clears the template cache so modified templates are re-read
+  from disk.
+
+## [2026-07-04] — caching, security, and health checks
+
+### Added
+
+- **Template function caching** across reloads for better performance.
+- **Dual sync/async loading** with the recursion guard replaced by a caching
+  bypass to prevent double load.
+- **SIGUSR1 reload debouncing** to prevent rapid flicker.
+- **`load_theme()` used in reload paths**; double-require removed.
+- **`*:checkhealth matugen*` integration** for diagnostic checks.
+- **Robust fallback color scheme** with graceful degradation on load failure.
+
+### Fixed
+
+- Security: template loading pinned to the plugin's own directory.
+- Security: palette path anonymized in globals; status leak dropped.
+- Security: `jsonc_path` extension validated and the path reused expanded.
+- Security: `opts` validated in `setup()` with defaults.
+- Safer JSONC comment stripping to avoid clobbering string values.
+- Template cache cleared on manual `:MatugenReload`.
+- Floating window backgrounds made opaque.
+
+### Removed
+
+- `:MatugenStatus` command (folded into `:checkhealth matugen`).
+
+## [2026-06-28] — diagnostics and docs
+
+### Added
+
+- **`:MatugenStatus` command** with diagnostics globals (later superseded by
+  `:checkhealth`).
+- Supported Plugins section and collapsible plugin list in the README.
+
+## [2026-06-05] — template split and load_theme
+
+### Added
+
+- **Split templates into individual modules** under `lua/matugen/templates/`
+  for nvim-cmp, neo-tree, nvim-tree, oil.nvim, mini.nvim, dropbar.nvim,
+  barbecue.nvim, aerial.nvim, zen-mode, twilight, diffview, lazygit, fzf-lua,
+  avante.nvim, render-markdown, todo-comments, flash.nvim, dressing.nvim, and
+  indent-blankline.
+- **`load_theme` option** with a notification when disabled.
 - **Plugin config now provides opts** via `vim.g.matugen_opts` instead of
   hardcoded defaults.
-- **`lazygit` template renamed** to `TUI_theme.lua`.
-- **Template descriptions and redundant `ui.lua` wrapper** removed.
-- **`ui.lua` updated** to use split modules for individual plugin templates.
-- **Indentation of `nvim-colors.json`** changed to 2 spaces.
-- **`.github/` directory restructured** — Makefile and check-syntax script
-  moved into `.github/`.
-- **Plenary.nvim dependency removed**; test workflow and trivial test
-  directory cleaned up.
-- **Doc files updated** to match current codebase.
 
-### Docs
+### Changed
 
-- README updated with cross-editor color parity, supported plugins,
-  contributing section, demo video, and proper lazy.nvim configuration.
-- Help file (`doc/matugen.txt`) updated with API documentation, template
-  caching behavior, reload behavior, and example configuration.
-- Various typo fixes and formatting improvements across all docs.
-- CSpell dictionary maintained with project-specific terms.
+- Renamed the lazygit template to `TUI_theme.lua`, then removed it entirely.
+- Docs updated for the new opts syntax and the `load_theme` flag.
 
+### Fixed
+
+- Prevented a crash when `jsonc_path` is nil.
+
+## [2026-06-03] — fallback color scheme
+
+### Added
+
+- **Robust fallback color scheme** (`lua/matugen/fallback_palette.lua`) with
+  graceful degradation when the palette file is missing or invalid.
+- Local development configurations (`.luarc.json`, `cspell.json`).
+
+### Changed
+
+- Fallback notifications formatted to two lines for readability.
+
+## [2026-05-25] — decoupled architecture
+
+### Changed
+
+- **Major refactor:** palette logic moved to `lua/matugen/palette.lua` with a
+  decoupled architecture. Template placeholders changed from the `.hex` suffix
+  to direct color variable names.
+- **`nvim-template.jsonc` renamed** to `nvim-colors.jsonc`.
+- README rewritten around cross-editor color parity and the decoupled
+  architecture.
+
+## [2026-05-23] — initial release
+
+### Added
+
+- Initial release of matugen.nvim — Material You colorscheme integration for
+  Neovim, reading a JSON template generated by the matugen CLI and applying it
+  to Neovim highlight groups.
