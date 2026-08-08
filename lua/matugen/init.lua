@@ -140,6 +140,12 @@ local function _apply_highlights(w, path, on_done)
 	for _, t in ipairs(templates) do
 		t(c, hl)
 	end
+
+	local term_cursor = vim.api.nvim_get_hl(0, { name = "TermCursor" })
+	if term_cursor.bg then
+		vim.api.nvim_set_hl(0, "TermCursorNC", { fg = c.on_surface_variant, bg = term_cursor.bg })
+	end
+
 	local now = os.time()
 	M._last_reload = now
 	M._template_count = #templates
