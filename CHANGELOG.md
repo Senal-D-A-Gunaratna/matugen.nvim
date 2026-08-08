@@ -7,13 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ⚠ BREAKING CHANGES
+
+- **Cursor color is now themed by shape, not by mode.** Three new required
+  palette keys replace the per-mode semantic mapping: `cursor_block`
+  (`primary`), `cursor_beam` (`tertiary`), and `cursor_underline`
+  (`secondary`). Existing generated palette files lack these keys and will
+  fail validation, falling back to the whole fallback palette — re-copy the
+  updated `nvim-colors.json` template and re-run matugen to regenerate.
+
 ### Added
 
-- **Per-mode cursor theming** via `guicursor`. The block cursor uses `primary`
-  for normal/command modes, `tertiary` for insert and operator-pending,
-  `secondary` for visual selections, and `error` for replace mode. Cursor
-  highlight groups are defined in `lua/matugen/templates/editor.lua` and the
-  `guicursor` string is set once in `setup()`.
+- **Per-shape cursor theming** via `guicursor`. Block-shaped cursors
+  (`Cursor`, `smCursor`, `TermCursor`) use `cursor_block`; beam/vertical
+  cursors (`iCursor`, `lCursor`) use `cursor_beam`; underline/horizontal
+  cursors (`rCursor`, `oCursor`) use `cursor_underline`. Highlight groups are
+  defined in `lua/matugen/templates/editor.lua` and the `guicursor` string is
+  set once in `setup()`.
 
 ### Fixed
 
