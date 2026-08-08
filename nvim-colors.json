@@ -29,6 +29,10 @@
   "word_highlight": "{{colors.secondary.default.hex}}33",
   "word_highlight_strong": "{{colors.tertiary.default.hex}}33",
 
+  "cursor_block": "{{colors.primary.default.hex}}",
+  "cursor_beam": "{{colors.tertiary.default.hex}}",
+  "cursor_underline": "{{colors.secondary.default.hex}}",
+
   "git_added": "{{colors.primary.default.hex}}",
   "git_modified": "{{colors.secondary.default.hex}}",
   "git_deleted": "{{colors.error.default.hex}}"

@@ -152,12 +152,13 @@ All highlight groups derive from a single semantic palette in
 `lua/matugen/palette.lua`. Adding support for a new plugin or UI component
 stays consistent by design
 
-The cursor is themed per mode: normal/command/visual use `primary`, insert and
-operator-pending use `tertiary`, visual-only selections use `secondary`, and
-replace mode uses `error`. The block cursor color works in any terminal, but
-per-mode cursor colors require a terminal that honors cursor colors (e.g.
-kitty, wezterm, foot). Terminals that ignore them (e.g. GNOME Terminal,
-alacritty) keep a plain cursor
+The cursor is themed per shape, not per mode: block-shaped cursors
+(`Cursor`, `smCursor`, `TermCursor`) use `cursor_block`, beam/vertical-bar
+cursors (`iCursor`, `lCursor`) use `cursor_beam`, and underline/horizontal-bar
+cursors (`rCursor`, `oCursor`) use `cursor_underline`. The block cursor color
+works in any terminal, but per-shape cursor colors require a terminal that
+honors cursor colors (e.g. kitty, wezterm, foot). Terminals that ignore them
+(e.g. GNOME Terminal, alacritty) keep a plain cursor
 
 To extend it, see [Creating Custom Templates](doc/TEMPLATES.md)
 
