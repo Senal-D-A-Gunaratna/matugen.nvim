@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`cspell.json`, `.neovim-stubs/`) are implicit.
 - **Docs updated** to point `palette_path` at the matugen cache directory
   (`~/.cache/matugen/nvim-colors.json`).
+- **Standardized `*NC` dimming convention:** `fg = on_surface_variant`, with `bg = surface_low` for anchored UI elements and `bg = nil` for content.
 
 ## [2026-07-19] — test tooling cleanup
 
