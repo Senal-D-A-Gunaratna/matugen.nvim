@@ -24,14 +24,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cursors (`rCursor`, `oCursor`) use `cursor_underline`. Highlight groups are
   defined in `lua/matugen/templates/editor.lua` and the `guicursor` string is
   set once in `setup()`.
+- **`TermCursorNC` highlight** for unfocused terminal buffers, which previously
+  fell back to plain reverse-video. It follows the existing `*NC` dimming
+  convention (`fg = on_surface_variant`, `bg = surface_low`) relative to
+  `TermCursor` (`fg = on_primary`, `bg = cursor_block`).
 
 ### Fixed
 
+- **Cursor foreground contrast paired to background.** Block cursors
+  (`Cursor`, `smCursor`, `TermCursor`) keep `on_primary` on `cursor_block`;
+  beam cursors (`iCursor`, `lCursor`) and underline cursors (`rCursor`,
+  `oCursor`) now use the neutral high-contrast `on_surface` on their mid-tone
+  accents, since no `on_tertiary`/`on_secondary` key exists.
+- **Removed the dead `vCursor` highlight.** It is not a Neovim default group
+  and is never referenced by the `guicursor` string in `setup()` — visual mode
+  is already covered by `n-v-c:block-Cursor`.
 - **Terminal cursor color no longer falls back to default.** Neovim now maps
   Terminal mode to the `TermCursor` highlight group via a `t:` entry in
-  `guicursor`, so matugen's `TermCursor` color is applied. Removed the
-  now-dead `TermCursorNC` highlight definition. `termguicolors` is enabled in
-  `setup()` since cursor color (not shape) requires it.
+  `guicursor`, so matugen's `TermCursor` color is applied. `termguicolors` is
+  enabled in `setup()` since cursor color (not shape) requires it.
 
 ### Changed
 

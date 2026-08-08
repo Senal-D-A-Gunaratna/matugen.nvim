@@ -160,6 +160,12 @@ works in any terminal, but per-shape cursor colors require a terminal that
 honors cursor colors (e.g. kitty, wezterm, foot). Terminals that ignore them
 (e.g. GNOME Terminal, alacritty) keep a plain cursor
 
+The cursor foreground is paired to its background: block cursors use
+high-contrast `on_primary` on `cursor_block`, while beam and underline cursors
+use the neutral `on_surface` on the mid-tone `cursor_beam`/`cursor_underline`
+accents. Unfocused terminal windows get the dimmed `TermCursorNC`
+(`on_surface_variant` on `surface_low`), matching the other `*NC` groups
+
 To extend it, see [Creating Custom Templates](doc/TEMPLATES.md)
 
 ---
