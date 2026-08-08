@@ -3,11 +3,11 @@ return function(c, hl)
   -- *NC rule: fg = on_surface_variant; use surface_low bg for UI/anchored, nil for window content.
   hl("NormalNC", { fg = c.on_surface_variant, bg = nil })
   hl("NormalFloat", { fg = c.on_surface, bg = c.surface_container })
-  
+
   hl("FloatBorder", { fg = c.primary, bg = c.surface_container })
   hl("FloatTitle", { fg = c.primary, bg = c.surface_container, bold = true })
   hl("FloatFooter", { fg = c.outline, bg = c.surface_container })
-  
+
   hl("Cursor", { fg = c.on_primary, bg = c.cursor_block })
   hl("iCursor", { fg = c.on_surface, bg = c.cursor_beam })
   hl("rCursor", { fg = c.on_surface, bg = c.cursor_underline })
@@ -22,17 +22,17 @@ return function(c, hl)
   hl("SignColumn", { fg = c.outline, bg = nil })
   hl("FoldColumn", { fg = c.outline_variant, bg = nil })
   hl("Folded", { fg = c.outline, bg = c.surface_high })
-  
+
   hl("Visual", { fg = c.on_primary_container, bg = c.primary_container })
   hl("VisualNOS", { fg = c.on_primary_container, bg = c.primary_container })
-  
+
   hl("Search", { fg = c.on_primary, bg = c.primary })
   hl("IncSearch", { fg = c.on_primary, bg = c.primary, bold = true })
   hl("CurSearch", { fg = c.on_primary, bg = c.primary, bold = true })
   hl("Substitute", { fg = c.on_primary, bg = c.primary_container })
-  
+
   hl("MatchParen", { fg = c.primary, underline = true, bold = true })
-  
+
   hl("StatusLine", { fg = c.on_surface_variant, bg = c.surface_container })
   hl("StatusLineNC", { fg = c.on_surface_variant, bg = c.surface_low })
   hl("WinBar", { fg = c.outline, bg = nil })

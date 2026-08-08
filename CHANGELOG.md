@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Terminal mode to the `TermCursor` highlight group via a `t:` entry in
   `guicursor`, so matugen's `TermCursor` color is applied. `termguicolors` is
   enabled in `setup()` since cursor color (not shape) requires it.
+- **Removed the `TermCursorNC` bg override in init.lua** that incorrectly set
+  it to `TermCursor`'s bg, breaking the dimmed *NC convention.
 
 ### Changed
 
