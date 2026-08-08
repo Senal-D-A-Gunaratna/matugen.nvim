@@ -1,6 +1,6 @@
 return function(c, hl)
   hl("SnacksNormal", { fg = c.on_surface, bg = c.surface_container })
-  hl("SnacksNormalNC", { fg = c.on_surface_variant, bg = c.surface_container })
+  hl("SnacksNormalNC", { fg = c.on_surface_variant, bg = c.surface_low })
   hl("SnacksBorder", { fg = c.outline_variant, bg = c.surface_container })
   hl("SnacksBackdrop", { bg = c.surface, blend = 40 })
   hl("SnacksDashboardNormal", { fg = c.on_surface, bg = nil })
