@@ -1,3 +1,3 @@
 return function(c, hl)
-  hl("Twilight", { fg = c.outline })
+	hl("Twilight", { fg = c.outline })
 end

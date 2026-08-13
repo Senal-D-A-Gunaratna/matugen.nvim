@@ -26,14 +26,18 @@ local function _notify_reload()
 		_notify_timer:close()
 	end
 	_notify_timer = uv.new_timer()
-	_notify_timer:start(_notify_ms, 0, vim.schedule_wrap(function()
-		if _notify_timer then
-			_notify_timer:stop()
-			_notify_timer:close()
-			_notify_timer = nil
-		end
-		notify("theme reloaded")
-	end))
+	_notify_timer:start(
+		_notify_ms,
+		0,
+		vim.schedule_wrap(function()
+			if _notify_timer then
+				_notify_timer:stop()
+				_notify_timer:close()
+				_notify_timer = nil
+			end
+			notify("theme reloaded")
+		end)
+	)
 end
 
 --- @return fun(table, fun(string, table):nil)[]
@@ -60,7 +64,10 @@ local function _load_templates()
 					table.insert(templates, res)
 				end
 			else
-				notify("Failed to load template " .. file .. ": " .. tostring(err), vim.log.levels.WARN)
+				notify(
+					"Failed to load template " .. file .. ": " .. tostring(err),
+					vim.log.levels.WARN
+				)
 			end
 		end
 	end
@@ -112,7 +119,10 @@ local function _apply_highlights(w, path, on_done)
 
 	if validator and w and next(w) ~= nil and not validator.is_valid(w) then
 		if not M._invalid_warned then
-			notify("palette contains invalid or incomplete color values, using fallback", vim.log.levels.WARN)
+			notify(
+				"palette contains invalid or incomplete color values, using fallback",
+				vim.log.levels.WARN
+			)
 			M._invalid_warned = true
 		end
 		c = {}
@@ -184,7 +194,10 @@ function M.load(on_done, force_sync)
 		end
 		return
 	elseif not path:match("%.[Jj][Ss][Oo][Nn]$") then
-		notify("palette_path must end in .json — refusing to open: " .. path, vim.log.levels.ERROR)
+		notify(
+			"palette_path must end in .json — refusing to open: " .. path,
+			vim.log.levels.ERROR
+		)
 		return
 	end
 
@@ -227,7 +240,9 @@ function M.load(on_done, force_sync)
 	uv.fs_open(path, "r", 438, function(err_open, fd)
 		if err_open or not fd then
 			vim.schedule(function()
-				if M._load_gen ~= gen then return end
+				if M._load_gen ~= gen then
+					return
+				end
 				notify(
 					"Could not open color file at: " .. path .. "\nUsing fallback color scheme",
 					vim.log.levels.WARN
@@ -241,7 +256,9 @@ function M.load(on_done, force_sync)
 			if err_stat or not stat then
 				uv.fs_close(fd, function() end)
 				vim.schedule(function()
-					if M._load_gen ~= gen then return end
+					if M._load_gen ~= gen then
+						return
+					end
 					notify("Could not stat color file at: " .. path, vim.log.levels.WARN)
 					_apply_highlights({}, path, on_done)
 				end)
@@ -251,10 +268,14 @@ function M.load(on_done, force_sync)
 			uv.fs_read(fd, stat.size, 0, function(err_read, data)
 				uv.fs_close(fd, function() end)
 				vim.schedule(function()
-					if M._load_gen ~= gen then return end
+					if M._load_gen ~= gen then
+						return
+					end
 					if err_read or not data then
 						notify(
-							"Could not read color file at: " .. path .. "\nUsing fallback color scheme",
+							"Could not read color file at: "
+								.. path
+								.. "\nUsing fallback color scheme",
 							vim.log.levels.WARN
 						)
 						_apply_highlights({}, path, on_done)
@@ -282,7 +303,8 @@ function M.setup(opts)
 		palette_path = "",
 		load_theme = true,
 	}, opts or {})
-	vim.opt.guicursor = "n-v-c:block-Cursor,i-ci-ve:ver25-iCursor,r-cr:hor20-rCursor,o:hor50-oCursor,sm:block-smCursor,t:block-TermCursor,a:blinkwait175-blinkoff150-blinkon175"
+	vim.opt.guicursor =
+		"n-v-c:block-Cursor,i-ci-ve:ver25-iCursor,r-cr:hor20-rCursor,o:hor50-oCursor,sm:block-smCursor,t:block-TermCursor,a:blinkwait175-blinkoff150-blinkon175"
 	vim.opt.termguicolors = true
 	if M.opts.load_theme then
 		M.load_theme(false) -- Non-blocking async load at startup

@@ -54,7 +54,10 @@ function M.check()
 					})
 				end
 			else
-				health.error("Could not open color file even though filereadable returned true: " .. palette_path)
+				health.error(
+					"Could not open color file even though filereadable returned true: "
+						.. palette_path
+				)
 			end
 		else
 			health.error("Palette file not found or not readable: " .. palette_path, {
@@ -96,7 +99,8 @@ function M.check()
 	local status = matugen._status or "Not loaded"
 	local count = matugen._template_count or 0
 	local path = matugen._palette_path or "No path"
-	local last = matugen._last_reload and os.date("%Y-%m-%d %H:%M:%S", matugen._last_reload) or "No data"
+	local last = matugen._last_reload and os.date("%Y-%m-%d %H:%M:%S", matugen._last_reload)
+		or "No data"
 
 	health.info(string.format("Loaded Palette: %s", path))
 	health.info(string.format("Status: %s", status))

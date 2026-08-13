@@ -7,7 +7,9 @@ vim.api.nvim_create_user_command("MatugenReload", function()
 end, { desc = "Reload templates from disk and reapply the theme" })
 
 local signal = (vim.uv or vim.loop).new_signal()
-signal:start("sigusr1", vim.schedule_wrap(function()
-	matugen.load_theme(false)
-end))
-
+signal:start(
+	"sigusr1",
+	vim.schedule_wrap(function()
+		matugen.load_theme(false)
+	end)
+)

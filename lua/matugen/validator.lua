@@ -55,7 +55,11 @@ function M.validate(path)
 			result.ok = false
 			table.insert(
 				result.errors,
-				string.format("Invalid color value '%s' for key '%s' (expected hex color)", value, key)
+				string.format(
+					"Invalid color value '%s' for key '%s' (expected hex color)",
+					value,
+					key
+				)
 			)
 		end
 	end
