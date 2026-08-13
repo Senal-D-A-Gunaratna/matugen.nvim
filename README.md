@@ -52,6 +52,12 @@ post_hook = "pkill -SIGUSR1 nvim"
 > **Note:** If the palette file fails to load, the plugin falls back to a
 > built-in dark theme and notifies you
 
+> **What `load_theme = true` does:** the plugin applies the generated
+> palette and sets itself as the active `colorscheme` on setup — you don't
+> need to call `vim.cmd.colorscheme(...)` (or set `vim.g.colors_name`)
+> yourself anywhere else in your config. Set it to `false` if you don't want
+> `matugen.nvim` to take over taking over as your colorscheme
+
 **4. Hyprland opacity** _(optional but recommended)_
 
 To get proper transparency in Neovim without ruining your regular terminal opacity, use [hyprfade.nvim](https://github.com/Senal-D-A-Gunaratna/hyprfade.nvim)
@@ -59,11 +65,11 @@ To get proper transparency in Neovim without ruining your regular terminal opaci
 Why use this instead of raw Hyprland config (hl.window_rule)?
 Standard Hyprland rules rely on window class or title matches (e.g., matching title:^nvim$). This breaks easily because:
 
-- Inconsistent Titles: Launching Neovim from a file manager (like Yazi), a subshell, or an alias often fails to update the window title before Hyprland applies the rule.
+- Inconsistent Titles: Launching Neovim from a file manager (like Yazi), a subshell, or an alias often fails to update the window title before Hyprland applies the rule
 
-- All-or-Nothing Terminal Transparency: Hyprland rules make your entire terminal transparent all the time.
+- All-or-Nothing Terminal Transparency: Hyprland rules make your entire terminal transparent all the time
 
-- Dynamic Control: hyprfade.nvim dynamically sets transparency only when Neovim is active, restoring normal terminal opacity as soon as you exit.
+- Dynamic Control: hyprfade.nvim dynamically sets transparency only when Neovim is active, restoring normal terminal opacity as soon as you exit
 
 Or use the native lua config
 
