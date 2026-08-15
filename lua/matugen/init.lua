@@ -321,6 +321,20 @@ function M.load_theme(force_sync)
 	M.load(function()
 		vim.cmd.colorscheme("matugen")
 
+		-- lualine caches its statusline highlights and rebuilds them via
+		-- its own ColorScheme handler, which it debounces/defers rather
+		-- than refreshing synchronously. Without this, our forced flush
+		-- below paints everything except lualine, which then repaints a
+		-- tick later on its own schedule — a visible flicker isolated
+		-- to the statusline. Only touch it if it's already loaded, so
+		-- we don't force a lazy-loaded lualine to load early.
+		if package.loaded["lualine"] then
+			local ok_lualine, lualine = pcall(require, "lualine")
+			if ok_lualine then
+				lualine.refresh()
+			end
+		end
+
 		-- guicursor is set once, synchronously, in setup() and refers
 		-- to highlight groups (Cursor, TermCursor, ...) by name. Since
 		-- palette loading can be async, those groups may not exist yet
