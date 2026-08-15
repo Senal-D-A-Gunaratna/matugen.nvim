@@ -31,13 +31,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Cursor no longer intermittently shows the terminal-default color on
-  startup.** `guicursor` is assigned synchronously in `setup()`, but the
+- **Cursor redraw now lives in `load_theme()` rather than `_apply_highlights()`.** `guicursor` is assigned synchronously in `setup()`, but the
   `Cursor`/`TermCursor`/etc. highlight groups it references are only defined
-  once the async palette load completes, so the correct color previously
-  had to wait on an unrelated redraw to appear. `_apply_highlights` now
-  calls `vim.api.nvim__redraw({ cursor = true, flush = true })` right after
-  the templates apply, forcing an immediate cursor repaint.
+  once the async palette load completes. The forced redraw was moved from
+  `_apply_highlights` into `M.load_theme()`'s `on_done` closure, immediately
+  after `vim.cmd.colorscheme("matugen")` returns — after both passes have
+  completed and the theme has truly settled. This avoids a visible flicker
+  caused by two separate `highlight clear` → reapply → flush cycles.
+- **Lualine statusline flicker fixed.** `lualine.nvim` caches its own
+  statusline highlight state and rebuilds it via its own `ColorScheme`
+  autocmd handler, which debounces/defers rather than refreshing
+  synchronously. The forced `nvim__redraw` from the cursor fix paints
+  everything except lualine, which then repaints a tick later in its own
+  schedule — an isolated flicker in the statusline only. Adding
+  `lualine.refresh()` immediately before the redraw, gated on
+  `package.loaded["lualine"]` so a lazy-loaded lualine is never forced to
+  load early, ensures the statusline repaints in sync with the rest of
+  the colorscheme.
 - **Cursor foreground contrast paired to background.** Block cursors
   (`Cursor`, `smCursor`, `TermCursor`) keep `on_primary` on `cursor_block`;
   beam cursors (`iCursor`, `lCursor`) and underline cursors (`rCursor`,
