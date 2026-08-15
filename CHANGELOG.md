@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Cursor no longer intermittently shows the terminal-default color on
+  startup.** `guicursor` is assigned synchronously in `setup()`, but the
+  `Cursor`/`TermCursor`/etc. highlight groups it references are only defined
+  once the async palette load completes, so the correct color previously
+  had to wait on an unrelated redraw to appear. `_apply_highlights` now
+  calls `vim.api.nvim__redraw({ cursor = true, flush = true })` right after
+  the templates apply, forcing an immediate cursor repaint.
 - **Cursor foreground contrast paired to background.** Block cursors
   (`Cursor`, `smCursor`, `TermCursor`) keep `on_primary` on `cursor_block`;
   beam cursors (`iCursor`, `lCursor`) and underline cursors (`rCursor`,
