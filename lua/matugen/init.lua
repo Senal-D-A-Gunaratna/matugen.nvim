@@ -348,7 +348,17 @@ function M.load_theme(force_sync)
 		-- immediately. This must run once, here, rather than inside
 		-- _apply_highlights itself, since that function runs twice per
 		-- load and flushing on both passes causes a visible flicker.
-		vim.api.nvim__redraw({ cursor = true, flush = true })
+		--
+		-- statusline = true is required alongside cursor = true:
+		-- lualine.refresh({ force = true }) above rebuilds the
+		-- statusline string and highlight groups (including the
+		-- separator "transitional" groups) in memory, but nothing
+		-- forces Neovim to actually repaint that region before this
+		-- flush. Without it, this flush can still paint using the
+		-- statusline's pre-reload state — unset transitional highlight
+		-- groups render as unstyled white separators — and the correct
+		-- paint only lands on some later, uncoordinated redraw.
+		vim.api.nvim__redraw({ cursor = true, statusline = true, flush = true })
 	end, force_sync)
 end
 
