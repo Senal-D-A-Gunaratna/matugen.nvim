@@ -118,6 +118,7 @@ Built-in templates live in `lua/matugen/templates`:
 - [mason.nvim](lua/matugen/templates/mason.lua)
 - [mini.nvim](lua/matugen/templates/mini.lua)
 - [neo-tree.nvim](lua/matugen/templates/neo_tree.lua)
+- [neominimap.nvim](lua/matugen/templates/neominimap.lua)
 - [noice.nvim](lua/matugen/templates/noice.lua)
 - [nvim-tree.nvim](lua/matugen/templates/nvim_tree.lua)
 - [oil.nvim](lua/matugen/templates/oil.lua)

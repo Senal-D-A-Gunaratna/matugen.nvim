@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **neominimap.nvim support** via `lua/matugen/templates/neominimap.lua`.
+  Covers window chrome, cursor line, diagnostic severities, git hunks (both
+  gitsigns.nvim and mini.diff backends), search matches, and marks —
+  following this repo's existing conventions (floats match
+  telescope.lua/FloatBorder, diagnostics match lsp.lua's severity mapping,
+  git hunks match gitsigns.lua's colors).
 - **Per-shape cursor theming** via `guicursor`. Block-shaped cursors
   (`Cursor`, `smCursor`, `TermCursor`) use `cursor_block`; beam/vertical
   cursors (`iCursor`, `lCursor`) use `cursor_beam`; underline/horizontal
