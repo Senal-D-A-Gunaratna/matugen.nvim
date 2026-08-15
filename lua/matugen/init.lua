@@ -333,10 +333,13 @@ function M.load_theme(force_sync)
 			end
 		end
 
-		-- nvim__redraw({cursor=true, statusline=true, flush=true}): forces screen
-		-- repaint; lualine.refresh updates in-memory state only, so both
-		-- cursor and statusline are needed to paint the screen correctly.
-		vim.api.nvim__redraw({ cursor = true, statusline = true, flush = true })
+		-- valid=false forces a full repaint of the entire editor (all
+		-- windows, statusline, winbar, tabline, cursor) in one call —
+		-- the Lua equivalent of :redraw!. Avoids having to enumerate
+		-- individual scope keys (cursor, statusline, ...) here as new
+		-- UI subsystems hit the same "refreshed in memory but not
+		-- painted" staleness issue.
+		vim.api.nvim__redraw({ valid = false, flush = true })
 	end, force_sync)
 end
 
