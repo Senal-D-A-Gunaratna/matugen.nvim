@@ -316,20 +316,16 @@ function M.load_theme(force_sync)
 	if force_sync == nil then
 		force_sync = true
 	end
-	-- Pass vim.cmd.colorscheme as on_done so it runs after highlights
-	-- are applied by the _apply_highlights callback.
 	M.load(function()
+		-- _apply_highlights runs twice/load (via :colorscheme ->
+		-- cached M.load path), so redraws happen once here, not inside it,
+		-- avoiding flicker.
+
 		vim.cmd.colorscheme("matugen")
 
-		-- lualine.refresh() called bare doesn't redraw synchronously — it
-		-- just queues the request and returns; the actual redraw (which
-		-- rebuilds section-separator "transitional" highlight groups,
-		-- among other things) only runs immediately when force = true is
-		-- passed. Without it, that queued refresh gets processed later
-		-- via lualine's own debounced vim.schedule callback, landing a
-		-- tick after our own flush below — visible as a residual flicker
-		-- isolated to separator shapes. Only touch it if it's already
-		-- loaded, so we don't force a lazy-loaded lualine to load early.
+		-- lualine.refresh({force=true}) forces immediate redraw; without it,
+		-- refresh only queues and returns, landing a tick late via debounced
+		-- vim.schedule.
 		if package.loaded["lualine"] then
 			local ok_lualine, lualine = pcall(require, "lualine")
 			if ok_lualine then
@@ -337,27 +333,9 @@ function M.load_theme(force_sync)
 			end
 		end
 
-		-- guicursor is set once, synchronously, in setup() and refers
-		-- to highlight groups (Cursor, TermCursor, ...) by name. Since
-		-- palette loading can be async, those groups may not exist yet
-		-- at the moment guicursor is assigned, and Neovim won't repaint
-		-- the cursor until some unrelated redraw happens to occur.
-		-- Force a cursor-only redraw now that :colorscheme has fully
-		-- settled (colors/matugen.lua re-applies highlights a second
-		-- time via the cache in M.load), so the correct color shows
-		-- immediately. This must run once, here, rather than inside
-		-- _apply_highlights itself, since that function runs twice per
-		-- load and flushing on both passes causes a visible flicker.
-		--
-		-- statusline = true is required alongside cursor = true:
-		-- lualine.refresh({ force = true }) above rebuilds the
-		-- statusline string and highlight groups (including the
-		-- separator "transitional" groups) in memory, but nothing
-		-- forces Neovim to actually repaint that region before this
-		-- flush. Without it, this flush can still paint using the
-		-- statusline's pre-reload state — unset transitional highlight
-		-- groups render as unstyled white separators — and the correct
-		-- paint only lands on some later, uncoordinated redraw.
+		-- nvim__redraw({cursor=true, statusline=true, flush=true}): forces screen
+		-- repaint; lualine.refresh updates in-memory state only, so both
+		-- cursor and statusline are needed to paint the screen correctly.
 		vim.api.nvim__redraw({ cursor = true, statusline = true, flush = true })
 	end, force_sync)
 end
