@@ -321,17 +321,19 @@ function M.load_theme(force_sync)
 	M.load(function()
 		vim.cmd.colorscheme("matugen")
 
-		-- lualine caches its statusline highlights and rebuilds them via
-		-- its own ColorScheme handler, which it debounces/defers rather
-		-- than refreshing synchronously. Without this, our forced flush
-		-- below paints everything except lualine, which then repaints a
-		-- tick later on its own schedule — a visible flicker isolated
-		-- to the statusline. Only touch it if it's already loaded, so
-		-- we don't force a lazy-loaded lualine to load early.
+		-- lualine.refresh() called bare doesn't redraw synchronously — it
+		-- just queues the request and returns; the actual redraw (which
+		-- rebuilds section-separator "transitional" highlight groups,
+		-- among other things) only runs immediately when force = true is
+		-- passed. Without it, that queued refresh gets processed later
+		-- via lualine's own debounced vim.schedule callback, landing a
+		-- tick after our own flush below — visible as a residual flicker
+		-- isolated to separator shapes. Only touch it if it's already
+		-- loaded, so we don't force a lazy-loaded lualine to load early.
 		if package.loaded["lualine"] then
 			local ok_lualine, lualine = pcall(require, "lualine")
 			if ok_lualine then
-				lualine.refresh()
+				lualine.refresh({ force = true })
 			end
 		end
 
