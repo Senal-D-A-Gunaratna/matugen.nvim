@@ -151,15 +151,6 @@ local function _apply_highlights(w, path, on_done)
 		t(c, hl)
 	end
 
-	-- guicursor is set once, synchronously, in setup() and refers to
-	-- highlight groups (Cursor, TermCursor, ...) by name. Since palette
-	-- loading is async, those groups may not exist yet at the moment
-	-- guicursor is assigned, and Neovim won't repaint the cursor until
-	-- some unrelated redraw happens to occur. Force a cursor-only
-	-- redraw now that the groups are actually defined, so the correct
-	-- color shows immediately instead of waiting on incidental redraws.
-	vim.api.nvim__redraw({ cursor = true, flush = true })
-
 	local now = os.time()
 	M._last_reload = now
 	M._template_count = #templates
@@ -329,6 +320,19 @@ function M.load_theme(force_sync)
 	-- are applied by the _apply_highlights callback.
 	M.load(function()
 		vim.cmd.colorscheme("matugen")
+
+		-- guicursor is set once, synchronously, in setup() and refers
+		-- to highlight groups (Cursor, TermCursor, ...) by name. Since
+		-- palette loading can be async, those groups may not exist yet
+		-- at the moment guicursor is assigned, and Neovim won't repaint
+		-- the cursor until some unrelated redraw happens to occur.
+		-- Force a cursor-only redraw now that :colorscheme has fully
+		-- settled (colors/matugen.lua re-applies highlights a second
+		-- time via the cache in M.load), so the correct color shows
+		-- immediately. This must run once, here, rather than inside
+		-- _apply_highlights itself, since that function runs twice per
+		-- load and flushing on both passes causes a visible flicker.
+		vim.api.nvim__redraw({ cursor = true, flush = true })
 	end, force_sync)
 end
 
