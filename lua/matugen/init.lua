@@ -151,6 +151,15 @@ local function _apply_highlights(w, path, on_done)
 		t(c, hl)
 	end
 
+	-- guicursor is set once, synchronously, in setup() and refers to
+	-- highlight groups (Cursor, TermCursor, ...) by name. Since palette
+	-- loading is async, those groups may not exist yet at the moment
+	-- guicursor is assigned, and Neovim won't repaint the cursor until
+	-- some unrelated redraw happens to occur. Force a cursor-only
+	-- redraw now that the groups are actually defined, so the correct
+	-- color shows immediately instead of waiting on incidental redraws.
+	vim.api.nvim__redraw({ cursor = true, flush = true })
+
 	local now = os.time()
 	M._last_reload = now
 	M._template_count = #templates
