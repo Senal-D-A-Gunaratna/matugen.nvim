@@ -41,14 +41,17 @@ post_hook = "pkill -SIGUSR1 nvim"
   priority = 1000,
   opts = {
     palette_path = "~/.cache/matugen/nvim-colors.json",
-    -- load_theme = false, -- uncomment to stop the plugin from auto-applying itself as your colorscheme
+    -- load_theme = false,
   },
 },
 ```
 
-By default the plugin loads the generated palette and sets itself as your
-active colorscheme — no extra `vim.cmd.colorscheme(...)` needed. Set
-`load_theme = false` if you'd rather apply it yourself
+By default, the plugin automatically loads the generated palette and sets
+itself as your active colorscheme — no extra `vim.cmd.colorscheme(...)` call
+needed
+
+Set `load_theme = false` if you'd rather manage the colorscheme yourself and
+don't want the plugin to apply it automatically
 
 > If the palette file can't be loaded, the plugin falls back to a built-in
 > dark theme and notifies you.
