@@ -64,6 +64,16 @@ function M.validate(path)
 		end
 	end
 
+	for _, key in ipairs(M.required_keys) do
+		if parsed[key] == nil then
+			result.ok = false
+			table.insert(
+				result.errors,
+				string.format("Missing required color key '%s'", key)
+			)
+		end
+	end
+
 	if result.ok then
 		table.insert(result.warnings, "All color values in palette are valid")
 	end
