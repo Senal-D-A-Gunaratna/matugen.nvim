@@ -48,6 +48,12 @@ function M.check()
 				local parsed_ok, parsed = pcall(vim.json.decode, content)
 				if parsed_ok and type(parsed) == "table" then
 					health.ok("Palette file parsed successfully")
+					local palette = require("matugen.palette")
+					for _, key in ipairs(palette.keys) do
+						if parsed[key] == nil then
+							health.error(string.format("Missing required color key '%s'", key))
+						end
+					end
 				else
 					health.error("Failed to decode JSON from palette file at: " .. palette_path, {
 						"Check for syntax errors in " .. palette_path,
