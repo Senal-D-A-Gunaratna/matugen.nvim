@@ -19,7 +19,17 @@ local function is_valid_hex(color)
 end
 
 function M.validate(path)
-	local result = { ok = true, errors = {}, warnings = {} }
+	-- `errors` stays for fatal/whole-file problems (file missing, bad JSON).
+	-- `invalid_hex` and `missing_keys` are typed so health.lua can render
+	-- each kind of problem distinctly instead of dumping everything into
+	-- one flat list of strings.
+	local result = {
+		ok = true,
+		errors = {},
+		warnings = {},
+		invalid_hex = {}, -- { { key = ..., value = ... }, ... }
+		missing_keys = {}, -- { key, key, ... }
+	}
 
 	local expanded = vim.fn.expand(path)
 	if vim.fn.filereadable(expanded) ~= 1 then
@@ -46,36 +56,17 @@ function M.validate(path)
 	end
 
 	for key, value in pairs(parsed) do
-		if
-			type(key) == "string"
-			and type(value) == "string"
-			and value:sub(1, 1) == "#"
-			and not is_valid_hex(value)
-		then
+		if type(key) == "string" and type(value) == "string" and not is_valid_hex(value) then
 			result.ok = false
-			table.insert(
-				result.errors,
-				string.format(
-					"Invalid color value '%s' for key '%s' (expected hex color)",
-					value,
-					key
-				)
-			)
+			table.insert(result.invalid_hex, { key = key, value = value })
 		end
 	end
 
 	for _, key in ipairs(M.required_keys) do
 		if parsed[key] == nil then
 			result.ok = false
-			table.insert(
-				result.errors,
-				string.format("Missing required color key '%s'", key)
-			)
+			table.insert(result.missing_keys, key)
 		end
-	end
-
-	if result.ok then
-		table.insert(result.warnings, "All color values in palette are valid")
 	end
 
 	return result

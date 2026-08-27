@@ -49,10 +49,25 @@ function M.check()
 				if parsed_ok and type(parsed) == "table" then
 					health.ok("Palette file parsed successfully")
 					local palette = require("matugen.palette")
+					local missing = {}
 					for _, key in ipairs(palette.keys) do
 						if parsed[key] == nil then
-							health.error(string.format("Missing required color key '%s'", key))
+							table.insert(missing, key)
 						end
+					end
+					if #missing > 0 then
+						local advice = {}
+						for _, key in ipairs(missing) do
+							table.insert(advice, "Add '" .. key .. "' to your palette file.")
+						end
+						health.error(
+							string.format(
+								"Missing %d required color key%s",
+								#missing,
+								#missing == 1 and "" or "s"
+							),
+							advice
+						)
 					end
 				else
 					health.error("Failed to decode JSON from palette file at: " .. palette_path, {
@@ -90,9 +105,41 @@ function M.check()
 		})
 	else
 		local result = validator.validate(palette_path)
+
+		-- Fatal/whole-file errors (file missing, bad JSON, etc.)
 		for _, err in ipairs(result.errors) do
 			health.error(err)
 		end
+
+		-- Invalid hex values: one line per bad key/value pair.
+		for _, entry in ipairs(result.invalid_hex or {}) do
+			health.error(
+				string.format(
+					"Invalid hex value '%s' for key '%s' (expected #RGB, #RGBA, #RRGGBB, or #RRGGBBAA)",
+					entry.value,
+					entry.key
+				)
+			)
+		end
+
+		-- Missing required keys: batched into a single error with a
+		-- bullet list, so a palette missing several keys doesn't spam
+		-- one line per key.
+		if result.missing_keys and #result.missing_keys > 0 then
+			local advice = {}
+			for _, key in ipairs(result.missing_keys) do
+				table.insert(advice, "Add '" .. key .. "' to your palette file.")
+			end
+			health.error(
+				string.format(
+					"Missing %d required color key%s",
+					#result.missing_keys,
+					#result.missing_keys == 1 and "" or "s"
+				),
+				advice
+			)
+		end
+
 		for _, warn in ipairs(result.warnings) do
 			health.warn(warn)
 		end
