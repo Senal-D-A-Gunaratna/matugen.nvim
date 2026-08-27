@@ -58,6 +58,9 @@ don't want the plugin to apply it automatically
 
 **4. Terminal opacity (optional)**
 
+> Terminal opacity can be achieved on most other DEs/WMs too (window rules,
+> compositor configs, etc) — this section covers the Hyprland-specific approach
+
 For transparency in Neovim that doesn't affect your regular terminal, use
 [hyprfade.nvim](https://github.com/Senal-D-A-Gunaratna/hyprfade.nvim). Unlike
 a static Hyprland window rule, it toggles opacity only while Neovim is
@@ -173,6 +176,10 @@ See [Creating Custom Templates](doc/TEMPLATES.md) to extend it
 ## Contributing
 
 PRs welcome — new plugin support, bug fixes, anything that makes this better
+
+## Support
+
+If you find this useful, consider giving it a ⭐ — it helps others discover the project
 
 ## License
 
