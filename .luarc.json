@@ -1,0 +1,9 @@
+{
+    "runtime.version": "LuaJIT",
+    "workspace.library": [
+        ".neovim-stubs/runtime/lua"
+    ],
+    "diagnostics.globals": [
+        "vim"
+    ]
+}

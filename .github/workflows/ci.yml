@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install lua and luarocks
+        run: sudo apt-get update && sudo apt-get install -y lua5.1 luarocks
+      - name: Install luacheck
+        run: sudo luarocks install luacheck
+      - name: Run luacheck
+        run: luacheck lua/ plugin/ colors/
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Neovim API stubs
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/neovim/neovim /tmp/neovim-stubs
+          cd /tmp/neovim-stubs && git sparse-checkout set runtime/lua
+          mkdir -p .neovim-stubs/runtime
+          cp -r /tmp/neovim-stubs/runtime/lua .neovim-stubs/runtime/
+          ls -la .neovim-stubs/runtime/lua/
+      - name: Install lua-language-server
+        run: |
+          LUALS_URL="$(
+            curl -fsSL --retry 5 --retry-delay 10 \
+              -H "Accept: application/vnd.github+json" \
+              ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} \
+              https://api.github.com/repos/LuaLS/lua-language-server/releases/latest \
+              | jq -r '.assets[] | select(.name | endswith("linux-x64.tar.gz")) | .browser_download_url'
+          )"
+          curl -fsSL --retry 5 --retry-delay 10 "$LUALS_URL" -o /tmp/luals.tar.gz
+          mkdir -p /tmp/luals
+          tar xzf /tmp/luals.tar.gz -C /tmp/luals
+          echo "/tmp/luals/bin" >> $GITHUB_PATH
+      - name: Run lua-language-server
+        run: |
+          lua-language-server --check=lua/ --check=plugin/ --check=colors/ \
+            --configpath=${GITHUB_WORKSPACE}/.luarc.json \
+            --check_output_path=/tmp/luals-check || true
+          if [ ! -f /tmp/luals-check/check.json ]; then
+            echo "No diagnostics output — all clean."
+            exit 0
+          fi
+          cat /tmp/luals-check/check.json
+          if jq -e '.diagnostics[] | select(.severity == 1)' /tmp/luals-check/check.json > /dev/null; then
+            echo "ERROR: Type errors found"
+            exit 1
+          fi
