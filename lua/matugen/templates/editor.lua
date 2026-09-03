@@ -77,7 +77,7 @@ return function(c, hl)
 	hl("DiffAdd", { fg = c.git_added, bg = c.surface_high })
 	hl("DiffChange", { fg = c.git_modified, bg = c.surface_high })
 	hl("DiffDelete", { fg = c.git_deleted, bg = c.surface_high })
-	hl("DiffText", { fg = c.on_surface, bg = c.error_container })
+	hl("DiffText", { fg = c.on_secondary_container, bg = c.secondary_container, bold = true })
 
 	hl("Conceal", { fg = c.outline })
 	hl("ColorColumn", { bg = c.surface_high })
