@@ -3,10 +3,7 @@ return function(c, hl)
 	hl("LazyH1", { fg = c.on_primary, bg = c.primary, bold = true })
 
 	-- Non-home button when selected (e.g. "Install (I)" while on that view)
-	hl(
-		"LazyButtonActive",
-		{ fg = c.on_secondary_container, bg = c.secondary_container, bold = true }
-	)
+	hl("LazyButtonActive", { fg = c.on_primary, bg = c.primary, bold = true })
 
 	-- Every unselected tab button — dimmed so the active one stands out
 	hl("LazyButton", { fg = c.secondary_fixed_dim, bg = c.surface_highest })
@@ -14,6 +11,8 @@ return function(c, hl)
 	hl("LazyH2", { fg = c.secondary, bold = true })
 	hl("LazyComment", { fg = c.outline, italic = true })
 	hl("LazySpecial", { fg = c.primary, bold = true })
+	hl("LazySpecialActive", { fg = c.surface, bold = true })
+	hl("LazySpecialActive", { fg = c.on_primary_container, bold = true })
 	hl("LazyProgressDone", { fg = c.primary })
 	hl("LazyProgressTodo", { fg = c.outline_variant })
 	hl("LazyDimmed", { fg = c.outline })
