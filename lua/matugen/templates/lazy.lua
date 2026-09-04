@@ -1,0 +1,44 @@
+return function(c, hl)
+	-- Home button when selected ("lazy.nvim" tab)
+	hl("LazyH1", { fg = c.on_primary, bg = c.primary, bold = true })
+
+	-- Non-home button when selected (e.g. "Install (I)" while on that view)
+	hl(
+		"LazyButtonActive",
+		{ fg = c.on_secondary_container, bg = c.secondary_container, bold = true }
+	)
+
+	-- Every unselected tab button — dimmed so the active one stands out
+	hl("LazyButton", { fg = c.secondary_fixed_dim, bg = c.surface_highest })
+
+	hl("LazyH2", { fg = c.secondary, bold = true })
+	hl("LazyComment", { fg = c.outline, italic = true })
+	hl("LazySpecial", { fg = c.primary, bold = true })
+	hl("LazyProgressDone", { fg = c.primary })
+	hl("LazyProgressTodo", { fg = c.outline_variant })
+	hl("LazyDimmed", { fg = c.outline })
+	hl("LazyProp", { fg = c.outline })
+	hl("LazyValue", { fg = c.tertiary_fixed_dim })
+	hl("LazyDir", { fg = c.primary, underline = true })
+	hl("LazyUrl", { fg = c.primary, underline = true })
+	hl("LazyCommit", { fg = c.on_surface_variant })
+	hl("LazyCommitIssue", { fg = c.secondary_fixed_dim })
+	hl("LazyCommitType", { fg = c.primary })
+	hl("LazyCommitScope", { fg = c.outline, italic = true })
+	hl("LazyLocal", { fg = c.primary_fixed_dim })
+	hl("LazyNoCond", { fg = c.error })
+	hl("LazyError", { fg = c.error })
+	hl("LazyWarning", { fg = c.tertiary })
+	hl("LazyInfo", { fg = c.secondary })
+	hl("LazyReasonRuntime", { fg = c.secondary })
+	hl("LazyReasonPlugin", { fg = c.tertiary })
+	hl("LazyReasonEvent", { fg = c.primary_fixed_dim })
+	hl("LazyReasonKeys", { fg = c.primary })
+	hl("LazyReasonStart", { fg = c.tertiary })
+	hl("LazyReasonSource", { fg = c.tertiary })
+	hl("LazyReasonFt", { fg = c.tertiary })
+	hl("LazyReasonCmd", { fg = c.inverse_primary })
+	hl("LazyReasonImport", { fg = c.on_surface })
+	hl("LazyReasonRequire", { fg = c.on_surface_variant })
+	hl("LazyTaskOutput", { fg = c.on_surface_variant })
+end

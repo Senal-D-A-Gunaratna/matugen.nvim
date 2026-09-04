@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ⚠ BREAKING CHANGES
 
+- **Syntax highlighting now draws from dedicated fixed/inverse tones
+  instead of reusing raw `primary`/`secondary`/`tertiary` for every group.**
+  Four new required palette keys: `primary_fixed_dim`, `secondary_fixed_dim`,
+  `tertiary_fixed_dim`, and `inverse_primary`. Existing generated palette
+  files lack these keys and will fail validation, falling back to the whole
+  fallback palette — re-copy the updated `nvim-colors.json` template and
+  re-run matugen to regenerate. See `doc/TEMPLATES.md` for the full key list.
+
 - **Cursor color is now themed by shape, not by mode.** Three new required
   palette keys replace the per-mode semantic mapping: `cursor_block`
   (`primary`), `cursor_beam` (`tertiary`), and `cursor_underline`
@@ -18,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Wider syntax color variety in `templates/syntax.lua`.** Groups that
+  previously all mapped to raw `primary`/`secondary`/`tertiary` now spread
+  across `primary_fixed_dim`, `secondary_fixed_dim`, `tertiary_fixed_dim`,
+  and `inverse_primary` as well — e.g. `String` uses `tertiary_fixed_dim`,
+  `Type` uses `secondary_fixed_dim`, `Operator`/`@keyword.operator` use
+  `inverse_primary`. Purely dynamic (no static seed colors); pair with a
+  wider matugen `scheme_type` (`scheme-expressive`, `scheme-vibrant`,
+  `scheme-fruit-salad`, `scheme-rainbow`) for more hue separation.
 - **neominimap.nvim support** via `lua/matugen/templates/neominimap.lua`.
   Covers window chrome, cursor line, diagnostic severities, git hunks (both
   gitsigns.nvim and mini.diff backends), search matches, and marks —
@@ -34,6 +50,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fell back to plain reverse-video. It follows the existing `*NC` dimming
   convention (`fg = on_surface_variant`, `bg = surface_low`) relative to
   `TermCursor` (`fg = on_primary`, `bg = cursor_block`).
+- **lazy.nvim support** via `lua/matugen/templates/lazy.lua`. Covers the
+  UI header/button bar (`LazyH1`, `LazyButton`, `LazyButtonActive`),
+  mnemonic shortcut letters and status dots (`LazySpecial`, tuned to
+  `primary` + bold for visibility), plugin list rows (commit refs, reasons,
+  progress bar, dir/url links), and task output/diagnostics. `LazyButton`
+  uses `secondary_fixed_dim` on `surface_highest` so unselected tabs read as
+  distinct boxes with a hue tint rather than flat gray text on an
+  indistinguishable background.
 
 ### Fixed
 

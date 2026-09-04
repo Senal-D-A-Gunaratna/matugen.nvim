@@ -120,6 +120,7 @@ Built-in templates live in `lua/matugen/templates`:
 - [fzf-lua.nvim](lua/matugen/templates/fzf_lua.lua)
 - [gitsigns.nvim](lua/matugen/templates/gitsigns.lua)
 - [ibl.nvim](lua/matugen/templates/ibl.lua)
+- [lazy.nvim](lua/matugen/templates/lazy.lua)
 - [lsp.nvim](lua/matugen/templates/lsp.lua)
 - [lualine.nvim](lua/matugen/templates/lualine.lua)
 - [mason.nvim](lua/matugen/templates/mason.lua)
