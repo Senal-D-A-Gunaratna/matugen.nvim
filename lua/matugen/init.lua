@@ -158,7 +158,7 @@ local function _watch_lazy_active_mnemonic()
 				vim.api.nvim_buf_set_extmark(buf, ns, lnum - 1, s - 1, {
 					end_col = e,
 					hl_group = "LazySpecialActive",
-					priority = 300, -- above lazy.nvim's own LazySpecial extmark
+					priority = 5000, -- above lazy.nvim's own default (4096) extmark priority
 				})
 				break
 			end
