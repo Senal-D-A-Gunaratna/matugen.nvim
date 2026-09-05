@@ -105,75 +105,76 @@ local function hex(v)
 	return v
 end
 
--- Recolors the active lazy.nvim tab's "(<key>)" mnemonic via a plain
--- extmark, layered on top of whatever lazy.nvim already drew. Reads only
--- lazy.nvim's public state (view.state.mode, view.config.get_commands())
--- and its own rendered buffer text — never overrides or replaces any
--- lazy.nvim function.
+-- Recolors the active lazy.nvim tab's "(<key>)" mnemonic via an ephemeral
+-- extmark set inside Neovim's own redraw cycle (nvim_set_decoration_provider),
+-- so it paints in sync with lazy.nvim's own render instead of a frame behind
+-- it. Reads only lazy.nvim's public state (view.state.mode,
+-- view.config.get_commands()) and its own rendered buffer text — never
+-- overrides or replaces any lazy.nvim function.
 local function _watch_lazy_active_mnemonic()
 	local ns = vim.api.nvim_create_namespace("matugen_lazy_active_mnemonic")
-
-	local function refresh()
-		local ok_view, LazyView = pcall(require, "lazy.view")
-		if not ok_view or not LazyView.view then
-			return
-		end
-		local view = LazyView.view
-		if not view.win or not vim.api.nvim_win_is_valid(view.win) then
-			return
-		end
-		local buf = view.buf
-		if not buf or not vim.api.nvim_buf_is_valid(buf) then
-			return
-		end
-
-		vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
-
-		local mode = view.state and view.state.mode
-		if not mode or mode == "home" then
-			return
-		end
-
-		local ok_cfg, ViewConfig = pcall(require, "lazy.view.config")
-		if not ok_cfg then
-			return
-		end
-
-		local key
-		for _, cmd in ipairs(ViewConfig.get_commands()) do
-			if cmd.button and cmd.name == mode then
-				key = cmd.key
-				break
-			end
-		end
-		if not key then
-			return
-		end
-
-		-- The title/button row is always near the top of the buffer.
-		local lines = vim.api.nvim_buf_get_lines(buf, 0, 4, false)
-		for lnum, line in ipairs(lines) do
-			local s, e = line:find("%(" .. vim.pesc(key) .. "%)")
-			if s then
-				vim.api.nvim_buf_set_extmark(buf, ns, lnum - 1, s - 1, {
-					end_col = e,
-					hl_group = "LazySpecialActive",
-					priority = 5000, -- above lazy.nvim's own default (4096) extmark priority
-				})
-				break
-			end
-		end
-	end
+	local active_bufs = {}
 
 	vim.api.nvim_create_autocmd("FileType", {
 		pattern = "lazy",
 		callback = function(args)
-			vim.api.nvim_buf_attach(args.buf, false, {
-				on_lines = function()
-					vim.schedule(refresh)
-				end,
-			})
-			vim.schedule(refresh)
+			active_bufs[args.buf] = true
+		end,
+	})
+
+	vim.api.nvim_create_autocmd("BufWipeout", {
+		callback = function(args)
+			active_bufs[args.buf] = nil
+		end,
+	})
+
+	vim.api.nvim_set_decoration_provider(ns, {
+		on_win = function(_, _, bufnr)
+			return active_bufs[bufnr] == true
+		end,
+		on_line = function(_, _, bufnr, row)
+			if row > 3 then
+				return
+			end
+
+			local ok_view, LazyView = pcall(require, "lazy.view")
+			if not ok_view or not LazyView.view then
+				return
+			end
+			local mode = LazyView.view.state and LazyView.view.state.mode
+			if not mode or mode == "home" then
+				return
+			end
+
+			local ok_cfg, ViewConfig = pcall(require, "lazy.view.config")
+			if not ok_cfg then
+				return
+			end
+
+			local key
+			for _, cmd in ipairs(ViewConfig.get_commands()) do
+				if cmd.button and cmd.name == mode then
+					key = cmd.key
+					break
+				end
+			end
+			if not key then
+				return
+			end
+
+			local line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)[1]
+			if not line then
+				return
+			end
+			local s, e = line:find("%(" .. vim.pesc(key) .. "%)")
+			if s then
+				vim.api.nvim_buf_set_extmark(bufnr, ns, row, s - 1, {
+					end_col = e,
+					hl_group = "LazySpecialActive",
+					priority = 5000, -- above lazy.nvim's own default (4096) extmark priority
+					ephemeral = true,
+				})
+			end
 		end,
 	})
 end
