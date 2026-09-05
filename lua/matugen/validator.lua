@@ -96,13 +96,9 @@ function M.is_valid(w)
 	if type(w) ~= "table" or next(w) == nil then
 		return false
 	end
-	for _, value in pairs(w) do
-		if type(value) ~= "string" or value:sub(1, 1) ~= "#" or not is_valid_hex(value) then
-			return false
-		end
-	end
 	for _, key in ipairs(M.required_keys) do
-		if w[key] == nil then
+		local value = w[key]
+		if type(value) ~= "string" or value:sub(1, 1) ~= "#" or not is_valid_hex(value) then
 			return false
 		end
 	end
