@@ -17,6 +17,7 @@ function M.load(on_done, force_sync)
 		return
 	end
 
+	M.opts = M.opts or { palette_path = "" }
 	local path = vim.fn.expand(M.opts.palette_path)
 
 	if not path or path == "" then
