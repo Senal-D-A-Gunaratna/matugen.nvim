@@ -18,7 +18,7 @@ return function(c, hl)
 
 	-- mini.map
 	hl("MiniMapNormal", { fg = c.on_surface_variant, bg = c.surface_low })
-	hl("MiniMapSymbolCount", { fg = c.secondary })
+	hl("MiniMapSymbolCount", { fg = c.secondary_fixed_dim })
 	hl("MiniMapSymbolLine", { fg = c.primary })
 	hl("MiniMapSymbolView", { fg = c.tertiary })
 

@@ -11,7 +11,7 @@ return function(c, hl)
 		"AvanteConflictCurrentLabel",
 		{ fg = c.on_primary_container, bg = c.primary_container, bold = true }
 	)
-	hl("AvanteConflictIncomingLabel", { fg = c.tertiary, bg = c.tertiary_container, bold = true })
+	hl("AvanteConflictIncomingLabel", { fg = c.tertiary_fixed_dim, bg = c.tertiary_container, bold = true })
 	hl("AvantePopupHint", { fg = c.outline, italic = true })
 	hl("AvanteInlineHint", { fg = c.outline, italic = true })
 end

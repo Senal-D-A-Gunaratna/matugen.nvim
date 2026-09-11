@@ -9,7 +9,7 @@ return function(c, hl)
 	hl("NeoTreeFileName", { fg = c.on_surface })
 	hl("NeoTreeFileNameOpened", { fg = c.primary, bold = true })
 	hl("NeoTreeRootName", { fg = c.primary, bold = true })
-	hl("NeoTreeSymbolicLinkTarget", { fg = c.secondary })
+	hl("NeoTreeSymbolicLinkTarget", { fg = c.secondary_fixed_dim })
 
 	-- Git status indicators in Neo-tree
 	hl("NeoTreeGitAdded", { fg = c.git_added })
