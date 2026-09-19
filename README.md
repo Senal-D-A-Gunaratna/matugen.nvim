@@ -19,11 +19,11 @@ required
 
 ## Setup
 
-#### 1. Copy the template
+### 1. Copy the template
 
 Copy [`nvim-colors.json`](nvim-colors.json) to your matugen templates folder
 
-#### 2. Add it to `config.toml`
+### 2. Add it to `config.toml`
 
 ```toml
 [templates.neovim]
@@ -32,7 +32,7 @@ output_path = "~/.cache/matugen/nvim-colors.json"
 post_hook = "pkill -SIGUSR1 nvim"
 ```
 
-#### 3. Install with `lazy.nvim`
+### 3. Install with `lazy.nvim`
 
 ```lua
 {
@@ -56,7 +56,7 @@ don't want the plugin to apply it automatically
 > If the palette file can't be loaded, the plugin falls back to a built-in
 > dark theme and notifies you.
 
-#### 4. Terminal opacity (optional)
+### 4. Terminal opacity (optional)
 
 > Terminal opacity can be achieved on most other DEs/WMs too (window rules,
 > compositor configs, etc) — this section covers the Hyprland-specific approach
