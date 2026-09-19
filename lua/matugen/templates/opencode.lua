@@ -17,8 +17,8 @@ return function(c, hl)
 
 	-- Mentions & message roles
 	hl("OpencodeMention", { fg = c.tertiary })
-	hl("OpencodeMessageRoleAssistant", { fg = c.tertiary, bold = true })
-	hl("OpencodeMessageRoleUser", { fg = c.primary, bold = true })
+	hl("OpencodeMessageRoleAssistant", { fg = c.primary, bold = true })
+	hl("OpencodeMessageRoleUser", { fg = c.tertiary, bold = true })
 	hl("OpencodeQueued", { fg = c.tertiary_fixed_dim, bold = true })
 
 	-- Diffs
