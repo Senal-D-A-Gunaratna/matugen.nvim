@@ -131,6 +131,7 @@ Built-in templates live in `lua/matugen/templates`:
 - [noice.nvim](lua/matugen/templates/noice.lua)
 - [nvim-tree.nvim](lua/matugen/templates/nvim_tree.lua)
 - [oil.nvim](lua/matugen/templates/oil.lua)
+- [opencode.nvim](lua/matugen/templates/opencode.lua)
 - [render-markdown.nvim](lua/matugen/templates/render_markdown.lua)
 - [snacks.nvim](lua/matugen/templates/snacks.lua)
 - [syntax](lua/matugen/templates/syntax.lua)
