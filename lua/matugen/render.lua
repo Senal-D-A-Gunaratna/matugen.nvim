@@ -111,80 +111,6 @@ return function(M)
 		return v
 	end
 
-	-- Recolors the active lazy.nvim tab's "(<key>)" mnemonic via an ephemeral
-	-- extmark set inside Neovim's own redraw cycle (nvim_set_decoration_provider),
-	-- so it paints in sync with lazy.nvim's own render instead of a frame behind
-	-- it. Reads only lazy.nvim's public state (view.state.mode,
-	-- view.config.get_commands()) and its own rendered buffer text — never
-	-- overrides or replaces any lazy.nvim function.
-	local function watch_lazy_active_mnemonic()
-		local ns = vim.api.nvim_create_namespace("matugen_lazy_active_mnemonic")
-		local active_bufs = {}
-
-		vim.api.nvim_create_autocmd("FileType", {
-			pattern = "lazy",
-			callback = function(args)
-				active_bufs[args.buf] = true
-			end,
-		})
-
-		vim.api.nvim_create_autocmd("BufWipeout", {
-			callback = function(args)
-				active_bufs[args.buf] = nil
-			end,
-		})
-
-		vim.api.nvim_set_decoration_provider(ns, {
-			on_win = function(_, _, bufnr)
-				return active_bufs[bufnr] == true
-			end,
-			on_line = function(_, _, bufnr, row)
-				if row > 3 then
-					return
-				end
-
-				local ok_view, LazyView = pcall(require, "lazy.view")
-				if not ok_view or not LazyView.view then
-					return
-				end
-				local mode = LazyView.view.state and LazyView.view.state.mode
-				if not mode or mode == "home" then
-					return
-				end
-
-				local ok_cfg, ViewConfig = pcall(require, "lazy.view.config")
-				if not ok_cfg then
-					return
-				end
-
-				local key
-				for _, cmd in ipairs(ViewConfig.get_commands()) do
-					if cmd.button and cmd.name == mode then
-						key = cmd.key
-						break
-					end
-				end
-				if not key then
-					return
-				end
-
-				local line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)[1]
-				if not line then
-					return
-				end
-				local s, e = line:find("%(" .. vim.pesc(key) .. "%)")
-				if s then
-					vim.api.nvim_buf_set_extmark(bufnr, ns, row, s - 1, {
-						end_col = e,
-						hl_group = "LazySpecialActive",
-						priority = 5000, -- above lazy.nvim's own default (4096) extmark priority
-						ephemeral = true,
-					})
-				end
-			end,
-		})
-	end
-
 	local function apply_highlights(w, path, on_done)
 		local templates = _load_templates()
 		local nvim_set_hl = vim.api.nvim_set_hl
@@ -251,6 +177,5 @@ return function(M)
 		notify = notify,
 		apply_highlights = apply_highlights,
 		reload_templates = reload_templates,
-		watch_lazy_active_mnemonic = watch_lazy_active_mnemonic,
 	}
 end
