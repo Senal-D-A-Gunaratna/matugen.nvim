@@ -32,8 +32,8 @@ return function(c, hl)
 	hl("OpencodeChangedLines", { bg = c.tertiary_container })
 
 	-- Agent mode badges
-	hl("OpencodeAgentPlan", { fg = c.on_secondary_container, bg = c.secondary_container, bold = true })
 	hl("OpencodeAgentBuild", { fg = c.on_primary, bg = c.primary, bold = true })
+	hl("OpencodeAgentPlan", { fg = c.primary_fixed_dim, bg = c.primary_container, bold = true })
 	hl("OpencodeAgentCustom", { fg = c.tertiary_fixed_dim, bg = c.tertiary_container, bold = true })
 	hl("OpencodeContextualActions", { fg = c.primary, bg = c.surface_high, bold = true })
 	hl("OpencodeInputLegend", { fg = c.on_surface_variant })
