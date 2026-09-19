@@ -58,6 +58,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   uses `secondary_fixed_dim` on `surface_highest` so unselected tabs read as
   distinct boxes with a hue tint rather than flat gray text on an
   indistinguishable background.
+- **opencode.nvim support** via `lua/matugen/templates/opencode.lua`. Covers
+  the chat panel window (`OpencodeBackground`/`OpencodeBorder`), session tabs
+  and their pending-permission/question states, message-role icon colors
+  (assistant vs user), in-buffer diffs with git tones (`secondary_container`/
+  `error_container` line backgrounds), agent mode badges (Build/Plan/Custom),
+  the context bar, and permission/question dialogs.
 
 ### Fixed
 
