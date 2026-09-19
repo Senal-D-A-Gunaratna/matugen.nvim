@@ -30,13 +30,13 @@ The `c` object contains your theme's colors mapped from the JSON file. The full 
 `on_surface`, `on_surface_variant`, `outline`, `outline_variant`
 
 **Primary:**
-`primary`, `on_primary`, `primary_container`, `on_primary_container`
+`primary`, `on_primary`, `primary_container`, `on_primary_container`, `primary_fixed_dim`, `inverse_primary`
 
 **Secondary:**
-`secondary`, `secondary_container`, `on_secondary_container`
+`secondary`, `secondary_container`, `on_secondary_container`, `secondary_fixed_dim`
 
 **Tertiary:**
-`tertiary`, `tertiary_container`
+`tertiary`, `tertiary_container`, `tertiary_fixed_dim`
 
 **Error / Selection:**
 `error`, `error_container`, `selection_bg`

@@ -1,6 +1,6 @@
 return function(c, hl)
 	hl("DiffviewFilePanelTitle", { fg = c.primary, bold = true })
-	hl("DiffviewFilePanelCounter", { fg = c.secondary, bold = true })
+	hl("DiffviewFilePanelCounter", { fg = c.secondary_fixed_dim, bold = true })
 	hl("DiffviewFilePanelFileName", { fg = c.on_surface })
 	hl("DiffviewFilePanelPath", { fg = c.outline })
 	hl("DiffviewFilePanelInsert", { fg = c.git_added })

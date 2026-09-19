@@ -19,11 +19,11 @@ required
 
 ## Setup
 
-**1. Copy the template**
+### 1. Copy the template
 
 Copy [`nvim-colors.json`](nvim-colors.json) to your matugen templates folder
 
-**2. Add it to `config.toml`**
+### 2. Add it to `config.toml`
 
 ```toml
 [templates.neovim]
@@ -32,7 +32,7 @@ output_path = "~/.cache/matugen/nvim-colors.json"
 post_hook = "pkill -SIGUSR1 nvim"
 ```
 
-**3. Install with `lazy.nvim`**
+### 3. Install with `lazy.nvim`
 
 ```lua
 {
@@ -56,7 +56,7 @@ don't want the plugin to apply it automatically
 > If the palette file can't be loaded, the plugin falls back to a built-in
 > dark theme and notifies you.
 
-**4. Terminal opacity (optional)**
+### 4. Terminal opacity (optional)
 
 > Terminal opacity can be achieved on most other DEs/WMs too (window rules,
 > compositor configs, etc) — this section covers the Hyprland-specific approach
@@ -103,6 +103,7 @@ Verifies your config, template parsing, active templates, and load status
 
 Built-in templates live in `lua/matugen/templates`:
 
+<!-- markdownlint-disable MD033 -->
 <details>
 <summary>Show all supported plugins</summary>
 
@@ -120,6 +121,7 @@ Built-in templates live in `lua/matugen/templates`:
 - [fzf-lua.nvim](lua/matugen/templates/fzf_lua.lua)
 - [gitsigns.nvim](lua/matugen/templates/gitsigns.lua)
 - [ibl.nvim](lua/matugen/templates/ibl.lua)
+- [lazy.nvim](lua/matugen/templates/lazy.lua)
 - [lsp.nvim](lua/matugen/templates/lsp.lua)
 - [lualine.nvim](lua/matugen/templates/lualine.lua)
 - [mason.nvim](lua/matugen/templates/mason.lua)
@@ -129,6 +131,7 @@ Built-in templates live in `lua/matugen/templates`:
 - [noice.nvim](lua/matugen/templates/noice.lua)
 - [nvim-tree.nvim](lua/matugen/templates/nvim_tree.lua)
 - [oil.nvim](lua/matugen/templates/oil.lua)
+- [opencode.nvim](lua/matugen/templates/opencode.lua)
 - [render-markdown.nvim](lua/matugen/templates/render_markdown.lua)
 - [snacks.nvim](lua/matugen/templates/snacks.lua)
 - [syntax](lua/matugen/templates/syntax.lua)
@@ -140,6 +143,7 @@ Built-in templates live in `lua/matugen/templates`:
 - [zen-mode.nvim](lua/matugen/templates/zen_mode.lua)
 
 </details>
+<!-- markdownlint-enable MD033 -->
 
 ## Customization
 

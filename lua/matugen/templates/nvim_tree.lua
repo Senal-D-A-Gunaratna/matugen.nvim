@@ -18,8 +18,8 @@ return function(c, hl)
 	hl("NvimTreeGitDeleted", { fg = c.git_deleted })
 
 	-- Special files
-	hl("NvimTreeSpecialFile", { fg = c.secondary, underline = true })
+	hl("NvimTreeSpecialFile", { fg = c.secondary_fixed_dim, underline = true })
 	hl("NvimTreeImageFile", { fg = c.tertiary })
-	hl("NvimTreeSymlink", { fg = c.secondary })
+	hl("NvimTreeSymlink", { fg = c.secondary_fixed_dim })
 	hl("NvimTreeWindowPicker", { fg = c.on_primary, bg = c.primary, bold = true })
 end

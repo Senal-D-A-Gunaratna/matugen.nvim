@@ -13,8 +13,8 @@ return function(c, hl)
 	-- Diagnostics — matches lsp.lua's severity mapping
 	hl("NeominimapErrorSign", { fg = c.error })
 	hl("NeominimapWarnSign", { fg = c.tertiary })
-	hl("NeominimapInfoSign", { fg = c.secondary })
-	hl("NeominimapHintSign", { fg = c.primary })
+	hl("NeominimapInfoSign", { fg = c.secondary_fixed_dim })
+	hl("NeominimapHintSign", { fg = c.secondary_fixed_dim })
 
 	hl("NeominimapErrorIcon", { fg = c.error })
 	hl("NeominimapWarnIcon", { fg = c.tertiary })
