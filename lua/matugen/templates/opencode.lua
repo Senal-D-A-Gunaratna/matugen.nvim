@@ -17,7 +17,7 @@ return function(c, hl)
 
 	-- Mentions & message roles
 	hl("OpencodeMention", { fg = c.tertiary })
-	hl("OpencodeMessageRoleAssistant", { fg = c.git_added, bold = true })
+	hl("OpencodeMessageRoleAssistant", { fg = c.tertiary, bold = true })
 	hl("OpencodeMessageRoleUser", { fg = c.primary, bold = true })
 	hl("OpencodeQueued", { fg = c.tertiary_fixed_dim, bold = true })
 
