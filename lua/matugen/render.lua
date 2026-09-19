@@ -53,8 +53,12 @@ return function(M)
 		end
 
 		local templates = {}
-		-- Pin template loading to this plugin's own directory via its resolved
-		-- path, preventing rogue plugins from injecting files via runtimepath.
+		-- Pin template loading to this plugin's own directory, never the
+		-- user's runtimepath. The plugin dir is resolved from this file's own
+		-- location (debug.getinfo on the current stack frame) rather than
+		-- searched for, so a rogue plugin can't shadow or inject template
+		-- files by putting a higher-priority match on `runtimepath`. The
+		-- resolved path also guards against a symlinked plugin install.
 		local _self = debug.getinfo(1, "S").source:sub(2)
 		local _plugin_lua_dir = _self:match("^(.*)/render%.lua$")
 		local _templates_dir = _plugin_lua_dir .. "/templates"
