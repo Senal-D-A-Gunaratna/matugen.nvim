@@ -179,7 +179,10 @@ function M.load_theme(force_sync)
 		-- individual scope keys (cursor, statusline, ...) here as new
 		-- UI subsystems hit the same "refreshed in memory but not
 		-- painted" staleness issue.
-		vim.api.nvim__redraw({ valid = false, flush = true })
+		local ok_redraw, _ = pcall(vim.api.nvim__redraw, { valid = false, flush = true })
+		if not ok_redraw then
+			vim.cmd.redraw()
+		end
 	end, force_sync)
 end
 
