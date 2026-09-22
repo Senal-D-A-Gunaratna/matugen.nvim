@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`custom_templates` option** to load templates from your own directory
+  instead of the plugin's built-in `lua/matugen/templates/` (suggested by
+  [@mixilin](https://github.com/mixilin) in
+  [#8](https://github.com/Senal-D-A-Gunaratna/matugen.nvim/issues/8)). On
+  startup the plugin creates the directory if it doesn't exist, copies any
+  built-in template files it's missing (never overwriting existing files),
+  and loads templates from it from then on. The built-in templates dir is
+  exposed as `matugen.builtin_templates_dir`.
 - **Wider syntax color variety in `templates/syntax.lua`.** Groups that
   previously all mapped to raw `primary`/`secondary`/`tertiary` now spread
   across `primary_fixed_dim`, `secondary_fixed_dim`, `tertiary_fixed_dim`,
