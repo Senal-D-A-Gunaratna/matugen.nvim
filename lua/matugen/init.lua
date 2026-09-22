@@ -4,6 +4,12 @@ local M = {}
 local render = require("matugen.render")(M)
 
 M.reload_templates = render.reload_templates
+M.set_templates_dir = render.set_templates_dir
+
+-- Internal variable: absolute path of the plugin's built-in templates
+-- directory. Useful when pointing `custom_templates` elsewhere or reporting
+-- which templates dir is active.
+M.builtin_templates_dir = require("matugen.templates_dir").builtin
 
 --- @param on_done? fun()
 --- @param force_sync? boolean
@@ -137,15 +143,21 @@ function M.load(on_done, force_sync)
 	end)
 end
 
---- @param opts? {palette_path?: string, load_theme?: boolean}
+--- @param opts? {palette_path?: string, load_theme?: boolean, custom_templates?: string}
 function M.setup(opts)
 	M.opts = vim.tbl_deep_extend("force", {
 		palette_path = "",
 		load_theme = true,
+		custom_templates = "",
 	}, opts or {})
 	vim.opt.guicursor =
 		"n-v-c:block-Cursor,i-ci-ve:ver25-iCursor,r-cr:hor20-rCursor,o:hor50-oCursor,sm:block-smCursor,t:block-TermCursor,a:blinkwait175-blinkoff150-blinkon175"
 	vim.opt.termguicolors = true
+	if M.opts.custom_templates and M.opts.custom_templates ~= "" then
+		local templates_dir = require("matugen.templates_dir")
+		templates_dir.sync(M.opts.custom_templates)
+		render.reload_templates()
+	end
 	if M.opts.load_theme then
 		M.load_theme(false) -- Non-blocking async load at startup
 	end
