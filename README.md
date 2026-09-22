@@ -42,7 +42,7 @@ post_hook = "pkill -SIGUSR1 nvim"
   opts = {
     palette_path = "~/.cache/matugen/nvim-colors.json",
     -- load_theme = false,
-    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional: own templates dir
+    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional
   },
 },
 ```
