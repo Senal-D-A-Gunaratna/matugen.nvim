@@ -157,6 +157,8 @@ function M.check()
 
 	health.info(string.format("Loaded Palette: %s", path))
 	health.info(string.format("Status: %s", status))
+	local tpl_dir = require("matugen.templates_dir").get_active()
+	health.info(string.format("Templates dir: %s", vim.fn.fnamemodify(tpl_dir, ":~")))
 	health.info(string.format("Active Templates count: %d", count))
 	health.info(string.format("Last Reload: %s", last))
 end

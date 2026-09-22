@@ -1,4 +1,5 @@
 local validator = require("matugen.validator")
+local templates_dir = require("matugen.templates_dir")
 
 --- Builds the rendering API bound to the given plugin state table `M`.
 --- All state (`M._templates`, `M._status`, `M._last_reload`, etc.) lives on
@@ -53,16 +54,13 @@ return function(M)
 		end
 
 		local templates = {}
-		-- Pin template loading to this plugin's own directory, never the
-		-- user's runtimepath. The plugin dir is resolved from this file's own
-		-- location (debug.getinfo on the current stack frame) rather than
-		-- searched for, so a rogue plugin can't shadow or inject template
-		-- files by putting a higher-priority match on `runtimepath`. The
-		-- resolved path also guards against a symlinked plugin install.
-		local _self = debug.getinfo(1, "S").source:sub(2)
-		local _plugin_lua_dir = _self:match("^(.*)/render%.lua$")
-		local _templates_dir = _plugin_lua_dir .. "/templates"
-		local _real_tpl_dir = vim.fn.resolve(_templates_dir)
+		-- Templates are loaded from `templates_dir.get_active()`, which is
+		-- the user's `custom_templates` directory when configured, else the
+		-- plugin's own built-in directory. The built-in dir is pinned to
+		-- this plugin's install location (resolved from this module's own
+		-- path), so a rogue plugin can't shadow or inject template files via
+		-- runtimepath. A custom dir is user-chosen and therefore trusted.
+		local _real_tpl_dir = templates_dir.get_active()
 
 		for name, ftype in vim.fs.dir(_real_tpl_dir) do
 			if ftype == "file" and name:match("%.lua$") then
@@ -87,6 +85,15 @@ return function(M)
 	end
 
 	local function reload_templates()
+		M._templates = nil
+	end
+
+	--- Point the templates directory elsewhere and drop the template cache
+	--- so the next load re-reads from the new directory. Pass nil (or "") to
+	--- fall back to the plugin's built-in templates.
+	--- @param path? string
+	local function set_templates_dir(path)
+		templates_dir.set_custom(path)
 		M._templates = nil
 	end
 
@@ -181,5 +188,6 @@ return function(M)
 		notify = notify,
 		apply_highlights = apply_highlights,
 		reload_templates = reload_templates,
+		set_templates_dir = set_templates_dir,
 	}
 end
