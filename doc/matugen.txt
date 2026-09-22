@@ -40,6 +40,7 @@ Example configuration with lazy.nvim:
   opts = {
     palette_path = "~/.cache/matugen/nvim-colors.json",
     -- load_theme = false, -- uncomment to stop the plugin from auto-applying itself as your colorscheme
+    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional: own templates dir
   },
 },
 <
@@ -53,12 +54,24 @@ and sets itself as the active colorscheme on setup — no extra
 `vim.cmd.colorscheme(...)` call needed. Set it to `false` if you'd rather
 apply the colorscheme yourself.
 
-Settings:
-  `palette_path`    (string)  Path to the matugen JSON palette file.
-                              Default: `""` (empty — uses fallback).
+`custom_templates` (optional) points to a directory that replaces the
+plugin's built-in template directory. On setup the plugin creates the
+directory if it doesn't exist, copies any built-in template files it's
+missing (existing files are never overwritten), and loads templates from
+it from then on. Edit the copied files to tweak or drop templates without
+touching plugin code; add a template by placing a Lua file there. Leave
+empty to use the built-in templates.
 
-  `load_theme`      (boolean) Whether to load the theme on startup.
-                              Default: `true`.
+Settings:
+  `palette_path`       (string)  Path to the matugen JSON palette file.
+                                 Default: `""` (empty — uses fallback).
+
+  `load_theme`         (boolean) Whether to load the theme on startup.
+                                 Default: `true`.
+
+  `custom_templates`   (string)  Directory to load templates from instead
+                                 of the built-in one. Empty by default —
+                                 use the built-in templates.
 
 Colors can be tweaked without touching any plugin code by editing your
 `nvim-colors.json` template directly. Each semantic key (e.g.
@@ -105,6 +118,11 @@ programmatic use in your config or autocmds.
 					Default: `""`.
 				- `load_theme`		(boolean) Whether to load
 					the theme on startup. Default: true.
+				- `custom_templates`	(string, optional) Directory
+					to load templates from instead of
+					the built-in one. Created and
+					filled with missing built-in
+					templates on setup. Default: "".
 
 	Example:
 	>lua
@@ -163,9 +181,25 @@ programmatic use in your config or autocmds.
 	this does not automatically re-apply highlights; call `load_theme`
 	afterwards to apply the newly loaded templates.
 
-Templates are loaded from `lua/matugen/templates/`, pinned to the plugin's
-own directory to prevent rogue plugins from injecting files via runtimepath.
-Each file must return a function accepting `(c, hl)` where `c` is the color
+`set_templates_dir(path)`				*matugen-api-set_templates_dir*
+
+	Points the templates directory at `path` and clears the template
+	cache so the next `load`/`load_theme` re-reads from the new
+	directory. Pass `nil` (or `""`) to fall back to the plugin's
+	built-in templates. Unlike `custom_templates`, this does not sync
+	the directory or create it.
+
+`builtin_templates_dir`				*matugen-api-builtin_templates_dir*
+	Internal string: the absolute path of the plugin's built-in
+	templates directory, resolved once at load. Useful when pointing
+	`custom_templates` elsewhere or reporting the active templates dir.
+
+Templates are loaded from the active templates directory — the user's
+`custom_templates` directory when configured, else the plugin's built-in
+`lua/matugen/templates/`. The built-in directory is pinned to the plugin's
+own install location to prevent rogue plugins from injecting files via
+runtimepath; a custom directory is user-chosen and therefore trusted. Each
+file must return a function accepting `(c, hl)` where `c` is the color
 palette table and `hl` is a wrapper around `vim.api.nvim_set_hl`.
 
 `_status`						*matugen-api-_status*
@@ -193,8 +227,8 @@ This command checks:
   - matugen CLI is installed (optional — informational).
   - Palette file existence, readability, and JSON parse validity.
   - All color values in the palette are valid hex codes.
-  - Loaded palette path, last reload timestamp, active template count,
-    and overall load status.
+  - Loaded palette path, active templates dir, last reload timestamp,
+    active template count, and overall load status.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:

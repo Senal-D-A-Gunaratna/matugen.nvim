@@ -42,6 +42,7 @@ post_hook = "pkill -SIGUSR1 nvim"
   opts = {
     palette_path = "~/.cache/matugen/nvim-colors.json",
     -- load_theme = false,
+    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional: own templates dir
   },
 },
 ```
@@ -146,6 +147,23 @@ Built-in templates live in `lua/matugen/templates`:
 <!-- markdownlint-enable MD033 -->
 
 ## Customization
+
+**Custom templates directory** — set `custom_templates` to a directory to
+take over template loading. On startup the plugin creates the directory if
+it doesn't exist, copies any built-in template files it's missing (never
+overwriting existing files), and loads templates from it instead of
+`lua/matugen/templates`. Edit the copied files to tweak or remove templates
+without touching plugin code:
+
+```lua
+opts = {
+  custom_templates = "~/.config/nvim/matugen-templates",
+  palette_path = "~/.cache/matugen/nvim-colors.json",
+}
+```
+
+Add a template by dropping a Lua file into that directory, then run
+`:MatugenReload`.
 
 **Tweaking colors** doesn't require touching any plugin code. Edit your
 [`nvim-colors.json`](nvim-colors.json) template directly — remap a semantic

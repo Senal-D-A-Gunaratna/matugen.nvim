@@ -4,9 +4,12 @@ This plugin bridges the gap between Material You colors and your Neovim environm
 
 `matugen.nvim` uses a modular template system. Each template is a Lua file that receives the current color palette and a high-level API to set Neovim highlights.
 
+Templates are loaded from the **active templates directory**: the user's `custom_templates` directory when configured via opts, otherwise the plugin's built-in `lua/matugen/templates/`. When `custom_templates` is set, the plugin creates that directory on startup (if missing) and copies any built-in template files it doesn't already have — existing files are never overwritten, so you can edit copies freely without fighting plugin updates.
+
 ## Template Structure
 
-Create a new file in `lua/matugen/templates/`.
+Create a new file in the active templates directory (built-in:
+`lua/matugen/templates/`, or your `custom_templates` directory).
 
 To load the new template (or apply changes to existing ones), run the `:MatugenReload` command or restart Neovim. The plugin caches templates in-memory during background/signal updates for maximum performance, but `:MatugenReload` will clear the cache and re-read the templates from disk.
 
