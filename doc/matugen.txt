@@ -228,7 +228,9 @@ This command checks:
   - Palette file existence, readability, and JSON parse validity.
   - All color values in the palette are valid hex codes.
   - Loaded palette path, active templates dir, last reload timestamp,
-    active template count, and overall load status.
+    active template count, and overall load status. The active
+    templates dir is reported as `built-in` unless a custom directory
+    is configured, in which case its path is shown.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:

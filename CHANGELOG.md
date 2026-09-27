@@ -109,6 +109,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`:checkhealth matugen` no longer prints the plugin's install path for
+  templates.** The `Templates dir` line reads `built-in` when the built-in
+  `lua/matugen/templates/` directory is active, and only shows a filesystem
+  path when a custom directory is in use (`custom_templates` or
+  `set_templates_dir`). Backed by a new `templates_dir.is_custom()` predicate;
+  this also removes an unguarded `vim.fn.fnamemodify` call that would have
+  errored if the built-in directory had ever resolved to `nil`.
 - **CI replaced with luacheck + typecheck pipeline** (bunson.nvim style).
   `lua-language-server` is downloaded with retries and an auth token; it runs
   against `lua/`, `plugin/`, and `colors/` and fails on severity-1 diagnostics.

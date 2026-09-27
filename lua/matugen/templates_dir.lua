@@ -34,6 +34,11 @@ function M.get_active()
 	return custom or M.builtin
 end
 
+--- @return boolean true if a custom templates directory is active
+function M.is_custom()
+	return custom ~= nil
+end
+
 --- Ensure `path` exists, fill it with any built-in template files it is
 --- missing (existing files are never overwritten), and activate it as the
 --- templates directory.
