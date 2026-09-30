@@ -59,6 +59,11 @@ don't want the plugin to apply it automatically
 > dark theme and notifies you. Recovery is per color key: any key the palette
 > provides is used as-is, and only missing or non-hex ones take their color
 > from the fallback — the warning names them.
+>
+> A broken file in `custom_templates` is treated more strictly, because it's a
+> customization you believe is active but isn't: the built-in template of the
+> same name is used instead, and the whole theme is rendered from the fallback
+> colors until the file is fixed. `:checkhealth matugen` lists the failures.
 
 ### 4. Terminal opacity (optional)
 

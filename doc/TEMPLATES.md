@@ -10,15 +10,19 @@ Templates are loaded from the plugin's built-in `lua/matugen/templates/` plus, w
 
 Built-in templates are applied first and custom ones last, so a custom template always wins the highlight groups it sets. What a custom file does depends on its name and its content:
 
-| File in `custom_templates`                    | Effect                                                                                      |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| A new name (`my_lualine.lua`) with a function | Added to the set. It only overrides the groups it defines.                                  |
-| Same name as a built-in, with a function      | Replaces that built-in template entirely.                                                   |
-| Same name as a built-in, blank (no content)   | Disables that built-in template. Leave the file empty, with no comment in it.               |
-| Same name as a built-in, but it fails to load | Reported as an error and ignored — the built-in stays, so a typo can't drop its highlights. |
-| A new name, but it fails to load              | Reported as an error and ignored; there is no built-in to fall back to.                     |
+| File in `custom_templates`                    | Effect                                                                                        |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| A new name (`my_lualine.lua`) with a function | Added to the set. It only overrides the groups it defines.                                    |
+| Same name as a built-in, with a function      | Replaces that built-in template entirely.                                                     |
+| Same name as a built-in, blank (no content)   | Disables that built-in template. Leave the file empty, with no comment in it.                 |
+| Same name as a built-in, but it fails to load | Reported as an error, the built-in stays, and the theme is rendered from the fallback colors. |
+| A new name, but it fails to load              | Reported as an error and ignored; there is no built-in to fall back to.                       |
 
-Fix a failed file and run `:MatugenReload` to re-read it.
+A failed file also counts as broken if it loads but throws while applying its highlight groups — for example by handing Neovim a color it rejects. The pass is redone from the fallback colors so one bad template can't leave the editor half-themed.
+
+Because a file that fails to load is a customization you believe is active but isn't, one broken file makes the whole theme use the fallback colors until you fix it, rather than rendering your palette through a partially applied customization. The built-in template of the same name is used in the meantime.
+
+Fix a failed file and run `:MatugenReload` to re-read it — the real palette returns as soon as no custom file is failing. `:checkhealth matugen` lists which files failed and which palette is in use.
 
 ## Template Structure
 

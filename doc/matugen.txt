@@ -162,6 +162,13 @@ programmatic use in your config or autocmds.
 	the palette is still used. The warning is repeated on every reload, so
 	a palette that stays broken keeps saying so.
 
+	A custom template that fails to load — or that throws while applying
+	its highlight groups — is reported and the built-in template of the
+	same name is kept. Because such a customization is silently not in
+	effect, the entire theme is then rendered from the fallback colors
+	instead of the palette, until the file is fixed and templates are
+	reloaded. `:checkhealth matugen` lists the failing files.
+
 	Parameters: ~
 		`on_done`	(function, optional) Callback invoked after all
 				highlights are applied. When provided, the

@@ -82,6 +82,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A broken custom template now renders the whole theme from the fallback
+  colors.** A file in `custom_templates` that fails to load — or that throws
+  while applying its highlight groups — is a customization you believe is
+  active but isn't, so the plugin now refuses to render your palette through
+  it: the built-in template of the same name is used, and every highlight
+  comes from `fallback_palette.lua` until the file is fixed and
+  `:MatugenReload` re-reads it. This overrides the per-key palette recovery
+  below for as long as the file stays broken. `:checkhealth matugen` lists
+  the failing files, their reasons, and which palette is in use.
+- **A template that throws while applying no longer aborts the highlight
+  pass.** Template functions were invoked unguarded, so a runtime error
+  inside one (e.g. handing `nvim_set_hl` a color it rejects) propagated out
+  of `load_theme()` and left the theme half-applied. Each template is now
+  applied under `pcall`; the failures are reported, and the pass is redone
+  from the fallback colors so the editor never ends up partially themed.
+- **Notifications can no longer break a theme load.** `vim.notify` is called
+  under `pcall`, since it is user-overridable and a raising handler would
+  otherwise turn a diagnostic into a failed colorscheme.
 - **A custom template that fails to load no longer disables the built-in of
   the same name.** The shadow map in `render.lua` was built from custom file
   names _before_ they were loaded, so a single syntax error dropped a
@@ -94,13 +112,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `custom_templates` file is your own file and is reported at `ERROR` with
   either `keeping built-in <name>` or `ignored`; a broken built-in one is a
   plugin bug and stays at `WARN`. Previously both were an undifferentiated
-  `WARN` reading `Failed to load template`.
+  `WARN` reading `Failed to load template`. The `file:line:` prefix
+  `loadfile` and `pcall` prepend is stripped, since the message already
+  names the file.
 - **Palette fallback is now per key instead of all-or-nothing.** One
   missing or non-hex value used to discard the entire palette and render
   every highlight from `fallback_palette.lua`, so a single typo silently
   swapped your Material You colors for the built-in VS Code Dark+ ones.
   Every key the palette does provide is now used as-is, and only the
-  unusable keys take their color from the fallback.
+  unusable keys take their color from the fallback. The one exception is a
+  broken custom template, which still pulls the whole palette, since that
+  indicates a customization that is not in effect at all.
 - **An invalid palette is reported on every reload, not just the first.**
   The one-shot `_invalid_warned` latch meant that after a single warning
   the affected keys kept coming from the fallback silently for the rest of
