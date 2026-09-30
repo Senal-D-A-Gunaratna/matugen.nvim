@@ -29,12 +29,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`custom_templates` option** to layer your own templates over the
   plugin's built-in `lua/matugen/templates/` (suggested by
   [@mixilin](https://github.com/mixilin) in
-  [#8](https://github.com/Senal-D-A-Gunaratna/matugen.nvim/issues/8)). Built-in
-  templates are applied first and custom ones last, so a custom template only
-  needs to set the highlight groups it wants to change. A custom file sharing a
-  name with a built-in one replaces it in its entirety; an empty one disables
-  the built-in template altogether. The directory is created empty if it
-  doesn't exist yet, and no built-in files are copied into it, so plugin
+  [#8](https://github.com/Senal-D-A-Gunaratna/matugen.nvim/issues/8),
+  implemented by [@etoPok](https://github.com/etoPok) in
+  [#9](https://github.com/Senal-D-A-Gunaratna/matugen.nvim/pull/9)).
+  Built-in templates are applied first and custom ones last, so a custom
+  template only needs to set the highlight groups it wants to change. A custom
+  file sharing a name with a built-in one replaces it in its entirety; an empty
+  one disables the built-in template altogether. The directory is created empty
+  if it doesn't exist yet, and no built-in files are copied into it, so plugin
   updates never clobber your templates. A directory that can't be created is
   reported and falls back to the built-ins.
   The built-in templates dir is exposed as `matugen.builtin_templates_dir`.
