@@ -47,19 +47,42 @@ return function(M)
 		)
 	end
 
+	--- Load one template file. Failures are returned rather than reported so the
+	--- caller can word the message with the context it has: a broken custom
+	--- file keeps the built-in of the same name, a broken built-in one has no
+	--- fallback at all.
 	--- @param file string
-	--- @return fun(table, hl: fun(string, table):nil)?
+	--- @return fun(table, hl: fun(string, table):nil)? template, or nil plus the
+	--- reason it could not be used
 	local function _try_load(file)
 		local chunk, err = loadfile(file)
 		if not chunk then
-			notify("Failed to load template " .. file .. ": " .. tostring(err), vim.log.levels.WARN)
-			return nil
+			return nil, tostring(err)
 		end
 		local ok_chunk, res = pcall(chunk)
-		if ok_chunk and type(res) == "function" then -- firma (c, hl)
-			return res
+		if not ok_chunk then
+			return nil, tostring(res)
 		end
-		return nil
+		if type(res) ~= "function" then -- must be firma (c, hl)
+			return nil, "must return a function(c, hl), or be blank to disable a built-in"
+		end
+		return res
+	end
+
+	--- A blank custom file is the documented way to disable a built-in
+	--- template of the same name. Anything else has to return a template
+	--- function, so an empty or whitespace-only file is the only content that
+	--- is intentionally skipped.
+	--- @param file string
+	--- @return boolean
+	local function _is_blank(file)
+		local f = io.open(file, "r")
+		if not f then
+			return false
+		end
+		local content = f:read("*a")
+		f:close()
+		return content:match("^%s*$") ~= nil
 	end
 
 	--- Every readable `*.lua` file in `dir`, sorted for a deterministic load
@@ -89,12 +112,13 @@ return function(M)
 		end
 		local templates = {}
 
-		-- Built-in templates are loaded first and the custom ones last, so a
+		-- Built-in templates are applied first and the custom ones last, so a
 		-- custom template only needs to set the highlight groups it cares
-		-- about: they win because they are applied afterwards. A custom file
-		-- sharing a name with a built-in one replaces it wholesale, which is
-		-- also how a built-in is disabled — an empty custom file loads to no
-		-- template at all, and the built-in is skipped.
+		-- about: they win because they are applied afterwards.
+		-- A custom file that loads and returns a function replaces the built-in
+		-- of the same name; a blank one disables it. A custom file that fails to
+		-- load replaces nothing — the built-in is kept, so a typo can't silently
+		-- strip a plugin's highlights.
 		-- The built-in dir is pinned to this plugin's own install location
 		-- (resolved in templates_dir.lua from that module's own path), so a
 		-- rogue plugin can't shadow or inject template files via runtimepath.
@@ -107,22 +131,56 @@ return function(M)
 		local builtin_files = templates_dir.builtin and _discover(templates_dir.builtin) or {}
 		local custom_files = custom_dir and _discover(custom_dir) or {}
 
-		local replaced = {}
+		-- Classify the custom files before touching the built-in ones, since
+		-- whether a built-in survives depends on what its custom counterpart
+		-- turned out to be. Custom files are loaded up front only to learn that;
+		-- they are still applied after every built-in below.
+		local blank, loaded = {}, {}
+		local builtin_names = {}
+		for _, file in ipairs(builtin_files) do
+			builtin_names[vim.fs.basename(file)] = true
+		end
+
 		for _, file in ipairs(custom_files) do
-			replaced[vim.fs.basename(file)] = true
+			local base = vim.fs.basename(file)
+			if _is_blank(file) then
+				blank[base] = true
+			else
+				local fn, reason = _try_load(file)
+				if fn then
+					loaded[base] = fn
+				else
+					notify(
+						"custom_templates template failed: "
+							.. file
+							.. ": "
+							.. reason
+							.. (
+								builtin_names[base] and "; keeping built-in " .. base or "; ignored"
+							),
+						vim.log.levels.ERROR
+					)
+				end
+			end
 		end
 
 		for _, file in ipairs(builtin_files) do
-			if not replaced[vim.fs.basename(file)] then
-				local fn = _try_load(file)
+			local base = vim.fs.basename(file)
+			if not blank[base] and not loaded[base] then
+				local fn, reason = _try_load(file)
 				if fn then
 					table.insert(templates, fn)
+				else
+					notify(
+						"built-in template failed: " .. file .. ": " .. reason,
+						vim.log.levels.WARN
+					)
 				end
 			end
 		end
 
 		for _, file in ipairs(custom_files) do
-			local fn = _try_load(file)
+			local fn = loaded[vim.fs.basename(file)]
 			if fn then
 				table.insert(templates, fn)
 			end
