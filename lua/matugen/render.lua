@@ -11,7 +11,9 @@ return function(M)
 	--- @param msg string
 	--- @param lvl? integer
 	local function notify(msg, lvl)
-		vim.notify("matugen: " .. msg, lvl or vim.log.levels.INFO)
+		-- Guarded: a notification is diagnostic output, so it must never be the
+		-- thing that breaks a theme load, and `vim.notify` is user-overridable.
+		pcall(vim.notify, "matugen: " .. msg, lvl or vim.log.levels.INFO)
 	end
 
 	local _notify_timer = nil
@@ -47,6 +49,16 @@ return function(M)
 		)
 	end
 
+	--- `loadfile` and `pcall` both prefix their message with `file:line:`,
+	--- and every caller already prints the path, so drop it.
+	--- @param file string
+	--- @param err any
+	--- @return string
+	local function _reason(file, err)
+		local msg = tostring(err)
+		return (msg:gsub("^" .. vim.pesc(file) .. ":%d+:?", ""))
+	end
+
 	--- Load one template file. Failures are returned rather than reported so the
 	--- caller can word the message with the context it has: a broken custom
 	--- file keeps the built-in of the same name, a broken built-in one has no
@@ -57,11 +69,11 @@ return function(M)
 	local function _try_load(file)
 		local chunk, err = loadfile(file)
 		if not chunk then
-			return nil, tostring(err)
+			return nil, _reason(file, err)
 		end
 		local ok_chunk, res = pcall(chunk)
 		if not ok_chunk then
-			return nil, tostring(res)
+			return nil, _reason(file, res)
 		end
 		if type(res) ~= "function" then -- must be firma (c, hl)
 			return nil, "must return a function(c, hl), or be blank to disable a built-in"
@@ -135,7 +147,12 @@ return function(M)
 		-- whether a built-in survives depends on what its custom counterpart
 		-- turned out to be. Custom files are loaded up front only to learn that;
 		-- they are still applied after every built-in below.
+		-- Failures are kept on `M` because they also decide the palette:
+		-- `apply_highlights` renders the whole theme from `fallback_palette.lua`
+		-- while any custom file is broken, so a customization that cannot be
+		-- applied can never leave a half-themed editor. Health reads this too.
 		local blank, loaded = {}, {}
+		local failed = {}
 		local builtin_names = {}
 		for _, file in ipairs(builtin_files) do
 			builtin_names[vim.fs.basename(file)] = true
@@ -150,14 +167,14 @@ return function(M)
 				if fn then
 					loaded[base] = fn
 				else
+					local kept = builtin_names[base] and true or false
+					table.insert(failed, { file = file, base = base, reason = reason, kept = kept })
 					notify(
 						"custom_templates template failed: "
 							.. file
 							.. ": "
 							.. reason
-							.. (
-								builtin_names[base] and "; keeping built-in " .. base or "; ignored"
-							),
+							.. (kept and "; keeping built-in " .. base or "; ignored"),
 						vim.log.levels.ERROR
 					)
 				end
@@ -169,7 +186,7 @@ return function(M)
 			if not blank[base] and not loaded[base] then
 				local fn, reason = _try_load(file)
 				if fn then
-					table.insert(templates, fn)
+					table.insert(templates, { fn = fn, file = file })
 				else
 					notify(
 						"built-in template failed: " .. file .. ": " .. reason,
@@ -182,9 +199,11 @@ return function(M)
 		for _, file in ipairs(custom_files) do
 			local fn = loaded[vim.fs.basename(file)]
 			if fn then
-				table.insert(templates, fn)
+				table.insert(templates, { fn = fn, file = file, custom = true })
 			end
 		end
+
+		M._custom_failed = failed
 
 		M._templates = templates
 		return templates
@@ -291,13 +310,76 @@ return function(M)
 			end
 		end
 
+		-- A custom template that can't be loaded is a customization the user
+		-- believes is active but isn't, so nothing derived from the palette can
+		-- be trusted to look right. Fall back to the built-in colors for the
+		-- whole load rather than rendering a half-applied customization.
+		-- Copied, since the fill above mutates `c` and the module table is
+		-- shared across reloads.
+		local custom_failed = M._custom_failed or {}
+		if #custom_failed > 0 then
+			c = vim.deepcopy(fallback_palette)
+			M._used_fallback_palette = true
+			notify(
+				(
+					#custom_failed == 1 and "1 custom template failed"
+					or #custom_failed .. " custom templates failed"
+				) .. "; rendering with the fallback color palette until fixed",
+				vim.log.levels.WARN
+			)
+		else
+			M._used_fallback_palette = false
+		end
+
 		vim.cmd("highlight clear")
 		if vim.fn.exists("syntax_on") == 1 then
 			vim.cmd("syntax reset")
 		end
 		vim.g.colors_name = "matugen"
-		for _, t in ipairs(templates) do
-			t(c, hl)
+
+		-- A template that loads can still throw while it is applied, e.g. by
+		-- handing `nvim_set_hl` a color it rejects. Left unchecked that error
+		-- aborts the whole pass and leaves the highlights applied so far, so
+		-- every template is guarded and the failures are collected: the pass is
+		-- then redone from the fallback colors, which is the same guarantee a
+		-- custom template that failed to load already gets.
+		local function apply_all()
+			local broken = {}
+			for _, t in ipairs(templates) do
+				local ok, err = pcall(t.fn, c, hl)
+				if not ok then
+					table.insert(broken, t)
+					notify(
+						(t.custom and "custom_templates" or "built-in")
+							.. " template failed while applying: "
+							.. t.file
+							.. ": "
+							.. _reason(t.file, err),
+						vim.log.levels.ERROR
+					)
+				end
+			end
+			return broken
+		end
+
+		local broken = apply_all()
+		if #broken > 0 and not M._used_fallback_palette then
+			c = vim.deepcopy(fallback_palette)
+			M._used_fallback_palette = true
+			for _, t in ipairs(broken) do
+				table.insert(custom_failed, {
+					file = t.file,
+					base = vim.fs.basename(t.file),
+					reason = "failed while applying its highlight groups",
+					kept = false,
+				})
+			end
+			notify(
+				(#broken == 1 and "1 template failed" or #broken .. " templates failed")
+					.. " while applying highlights; re-rendered with the fallback color palette",
+				vim.log.levels.WARN
+			)
+			apply_all()
 		end
 
 		local now = os.time()
