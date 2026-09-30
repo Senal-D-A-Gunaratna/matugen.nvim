@@ -162,10 +162,11 @@ opts = {
 ```
 
 Nothing is copied out of the plugin, so updates never overwrite your
-work. If the directory doesn't exist yet, it's created empty. To replace
-a built-in template in its entirety, create a file with the same name as
-the built-in template; it may be empty, which disables
-the built-in template altogether, or implement your own configuration.
+work. If the directory doesn't exist yet, it's created empty and
+you're notified. To replace a built-in template in its entirety, create
+a file with the same name as the built-in template; it may be empty,
+which disables the built-in template altogether, or implement your own
+configuration.
 Add a template by dropping a Lua file into that directory, then run
 `:MatugenReload`.
 

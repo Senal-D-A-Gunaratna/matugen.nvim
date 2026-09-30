@@ -36,9 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   template only needs to set the highlight groups it wants to change. A custom
   file sharing a name with a built-in one replaces it in its entirety; an empty
   one disables the built-in template altogether. The directory is created empty
-  if it doesn't exist yet, and no built-in files are copied into it, so plugin
-  updates never clobber your templates. A directory that can't be created is
-  reported and falls back to the built-ins.
+  if it doesn't exist yet, and creating it is reported; no built-in files are
+  copied into it, so plugin updates never clobber your templates. A directory
+  that can't be created is reported and falls back to the built-ins.
   The built-in templates dir is exposed as `matugen.builtin_templates_dir`.
 - **Wider syntax color variety in `templates/syntax.lua`.** Groups that
   previously all mapped to raw `primary`/`secondary`/`tertiary` now spread
