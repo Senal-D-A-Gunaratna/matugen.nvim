@@ -40,23 +40,29 @@ function M.is_custom()
 	return custom ~= nil
 end
 
---- Validate `path` and activate it as the custom templates directory, which
---- is then layered on top of the built-in templates. The directory is never
---- created and built-in templates are never copied into it, so a missing
---- directory is reported and leaves the built-in templates as the only source.
+--- Validate `path`, creating it if missing, and activate it as the custom
+--- templates directory, which is then layered on top of the built-in
+--- templates. It is always created empty: built-in templates are never copied
+--- into it, so a plugin update can never clobber your work. If the directory
+--- cannot be created, that is reported and the built-in templates are left as
+--- the only source.
 --- @param path string
---- @return string? resolved path, or nil if unset or missing
+--- @return string? resolved path, or nil if unset or uncreatable
 function M.activate(path)
 	local dest = _resolve(path)
 	if not dest then
 		return nil
 	end
 	if vim.fn.isdirectory(dest) == 0 then
-		vim.notify(
-			"matugen: could not find custom_templates dir, using built-in templates only: " .. dest,
-			vim.log.levels.WARN
-		)
-		return nil
+		pcall(vim.fn.mkdir, dest, "p")
+		if vim.fn.isdirectory(dest) == 0 then
+			vim.notify(
+				"matugen: could not create custom_templates dir, using built-in templates only: "
+					.. dest,
+				vim.log.levels.WARN
+			)
+			return nil
+		end
 	end
 	M.set_custom(dest)
 	return dest
