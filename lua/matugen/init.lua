@@ -155,7 +155,7 @@ function M.setup(opts)
 	vim.opt.termguicolors = true
 	if M.opts.custom_templates and M.opts.custom_templates ~= "" then
 		local templates_dir = require("matugen.templates_dir")
-		templates_dir.sync(M.opts.custom_templates)
+		templates_dir.activate(M.opts.custom_templates)
 		render.reload_templates()
 	end
 	if M.opts.load_theme then

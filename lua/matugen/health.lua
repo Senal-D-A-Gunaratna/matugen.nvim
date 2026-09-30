@@ -158,9 +158,23 @@ function M.check()
 	health.info(string.format("Loaded Palette: %s", path))
 	health.info(string.format("Status: %s", status))
 	local templates_dir = require("matugen.templates_dir")
-	if templates_dir.is_custom() then
+	local active = templates_dir.get_active()
+	-- `set_templates_dir` points the custom dir at a path without
+	-- checking that it exists
+	if templates_dir.is_custom() and vim.fn.isdirectory(active) == 0 then
+		health.warn(
+			"Templates dir: custom dir not found, built-in templates only: "
+				.. vim.fn.fnamemodify(active, ":~"),
+			{
+				"Create the directory, or clear it with require('matugen').set_templates_dir(nil).",
+			}
+		)
+	elseif templates_dir.is_custom() then
 		health.info(
-			string.format("Templates dir: %s", vim.fn.fnamemodify(templates_dir.get_active(), ":~"))
+			string.format(
+				"Templates dir: built-in + custom_templates: %s",
+				vim.fn.fnamemodify(active, ":~")
+			)
 		)
 	else
 		health.info("Templates dir: built-in")
