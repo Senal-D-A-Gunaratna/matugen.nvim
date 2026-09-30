@@ -245,25 +245,44 @@ return function(M)
 		end
 
 		local fallback_palette = require("matugen.fallback_palette")
-		local c
+		local palette = require("matugen.palette")
+		local c = {}
 
-		if w and next(w) ~= nil and not validator.is_valid(w) then
+		-- Per-key recovery. A palette with one bad or missing entry still
+		-- contributes every value it does provide, so a single typo no longer
+		-- replaces the whole theme with the fallback colors — only the keys that
+		-- are unusable are substituted. Those keys are named in the warning, so
+		-- the offender is obvious without a trip to `:checkhealth`.
+		local unusable = {}
+		for _, k in ipairs(palette.keys) do
+			local v = w and w[k] or nil
+			if validator.is_valid_hex(v) then
+				c[k] = hex(v)
+			else
+				table.insert(unusable, k)
+			end
+		end
+
+		if next(w) ~= nil and #unusable > 0 then
 			-- Not latched: a palette that is still broken on the next reload is
-			-- still worth reporting, and every reload that drops to the fallback
-			-- means the user is looking at the wrong colors.
+			-- still worth reporting, since the affected keys keep coming from the
+			-- fallback. An empty palette (`w` is `{}`) is a separate failure the
+			-- loader already reports, so it isn't double-reported here.
+			local named = {}
+			for i = 1, math.min(#unusable, 6) do
+				table.insert(named, unusable[i])
+			end
+			local listed = table.concat(named, ", ")
+			if #unusable > 6 then
+				listed = listed .. " (+" .. (#unusable - 6) .. " more)"
+			end
 			notify(
-				"palette contains invalid or incomplete color values, using fallback",
+				"palette has "
+					.. #unusable
+					.. " invalid or missing color value(s), using fallback for: "
+					.. listed,
 				vim.log.levels.WARN
 			)
-			c = {}
-		else
-			local palette = require("matugen.palette")
-			c = palette.get_colors(function(k)
-				return hex(w[k])
-			end)
-			if not c then
-				return notify("palette not found", 3)
-			end
 		end
 
 		for k, v in pairs(fallback_palette) do
