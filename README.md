@@ -163,10 +163,11 @@ opts = {
 
 Nothing is copied out of the plugin, so updates never overwrite your
 work. If the directory doesn't exist yet, it's created empty and
-you're notified. To replace a built-in template in its entirety, create
-a file with the same name as the built-in template; it may be empty,
-which disables the built-in template altogether, or implement your own
-configuration.
+you're notified. A file that matches a built-in template's name replaces
+it; the same name with a blank file disables it. A file that fails to
+load is reported as an error and ignored, so the built-in stays rather
+than silently losing its highlights — fix it and run `:MatugenReload`.
+Only the top level of the directory is scanned.
 Add a template by dropping a Lua file into that directory, then run
 `:MatugenReload`.
 

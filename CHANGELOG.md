@@ -81,6 +81,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A custom template that fails to load no longer disables the built-in of
+  the same name.** The shadow map in `render.lua` was built from custom file
+  names *before* they were loaded, so a single syntax error dropped a
+  built-in template's highlights (34 → 33) behind one warning line. Custom
+  files are now classified first — blank file disables, loadable file
+  replaces, broken file replaces nothing — so the built-in survives a typo.
+  Only a genuinely blank file (no content at all, not even a comment)
+  disables a built-in; anything else must return a template function.
+- **Template load failures name their source and severity.** A broken
+  `custom_templates` file is your own file and is reported at `ERROR` with
+  either `keeping built-in <name>` or `ignored`; a broken built-in one is a
+  plugin bug and stays at `WARN`. Previously both were an undifferentiated
+  `WARN` reading `Failed to load template`.
+- **An invalid palette is reported on every reload, not just the first.**
+  The one-shot `_invalid_warned` latch meant that after a single warning the
+  fallback palette could keep taking over silently for the rest of the
+  session — while every reload still rendered the wrong colors. Note that
+  `load_theme()` applies highlights twice per call, so a broken palette
+  warns twice per reload.
 - **Cursor redraw now lives in `load_theme()` rather than `_apply_highlights()`.** `guicursor` is assigned synchronously in `setup()`, but the
   `Cursor`/`TermCursor`/etc. highlight groups it references are only defined
   once the async palette load completes. The forced redraw was moved from

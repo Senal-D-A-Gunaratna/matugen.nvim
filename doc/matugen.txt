@@ -58,13 +58,18 @@ apply the colorscheme yourself.
 that is layered on top of the plugin's built-in templates. Built-in
 templates are loaded first, followed by your custom ones, so a custom
 template only needs to set the highlight groups you actually want to
-change — they win because they are applied afterwards. To replace a
-built-in template in its entirety, create a file in `custom_templates`
-with the same name as the built-in template; it may be empty, which
-disables the built-in template altogether, or implement your own
-configuration. The directory is created empty if it doesn't exist yet,
-and creating it is reported; built-in template files are never copied
-into it. Leave empty to use the built-in templates only.
+change — they win because they are applied afterwards. What a custom
+file does depends on its name and its content: a new name adds a
+template, a name matching a built-in one replaces it, and a blank file
+with that same name disables the built-in template altogether. A custom
+file that fails to load is reported as an error and ignored, leaving the
+built-in template of the same name in place, so a typo can't silently
+drop a plugin's highlights. Fix the file and run |:MatugenReload| to
+re-read it. Only the top level of the directory is scanned, so a `.lua`
+file in a subdirectory is ignored. The directory is created empty if it
+doesn't exist yet, and creating it is reported; built-in template files
+are never copied into it. Leave empty to use the built-in templates
+only.
 
 Settings:
   `palette_path`       (string)  Path to the matugen JSON palette file.

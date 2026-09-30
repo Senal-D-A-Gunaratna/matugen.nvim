@@ -8,17 +8,24 @@ Templates are loaded from the plugin's built-in `lua/matugen/templates/` plus, w
 
 ## Overriding a built-in template
 
-Built-in templates are applied first and custom ones last, so a custom template always wins the highlight groups it sets. What a custom file does depends on its name:
+Built-in templates are applied first and custom ones last, so a custom template always wins the highlight groups it sets. What a custom file does depends on its name and its content:
 
-| File in `custom_templates`                     | Effect                                                                                |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------- |
-| A new name (`my_lualine.lua`)                  | Added to the set. It only overrides the groups it defines.                            |
-| Same name as a built-in, with content or empty | Replaces that built-in template entirely and, if not empty, loads the defined groups. |
+| File in `custom_templates`                    | Effect                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| A new name (`my_lualine.lua`) with a function | Added to the set. It only overrides the groups it defines.                                  |
+| Same name as a built-in, with a function      | Replaces that built-in template entirely.                                                   |
+| Same name as a built-in, blank (no content)   | Disables that built-in template. Leave the file empty, with no comment in it.               |
+| Same name as a built-in, but it fails to load | Reported as an error and ignored — the built-in stays, so a typo can't drop its highlights. |
+| A new name, but it fails to load              | Reported as an error and ignored; there is no built-in to fall back to.                     |
+
+Fix a failed file and run `:MatugenReload` to re-read it.
 
 ## Template Structure
 
 Create a new file in your `custom_templates` directory (the built-in
-`lua/matugen/templates/` is not meant to be edited).
+`lua/matugen/templates/` is not meant to be edited). Templates are read
+from the top level of that directory only — a `.lua` file inside a
+subdirectory is ignored.
 
 To load the new template (or apply changes to existing ones), run the `:MatugenReload` command or restart Neovim. The plugin caches templates in-memory during background/signal updates for maximum performance, but `:MatugenReload` will clear the cache and re-read the templates from disk.
 
