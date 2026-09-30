@@ -43,9 +43,10 @@ end
 --- Validate `path`, creating it if missing, and activate it as the custom
 --- templates directory, which is then layered on top of the built-in
 --- templates. It is always created empty: built-in templates are never copied
---- into it, so a plugin update can never clobber your work. If the directory
---- cannot be created, that is reported and the built-in templates are left as
---- the only source.
+--- into it, so a plugin update can never clobber your work. Creating it is
+--- reported, so the startup side effect is visible. If the directory cannot be
+--- created, that is reported and the built-in templates are left as the only
+--- source.
 --- @param path string
 --- @return string? resolved path, or nil if unset or uncreatable
 function M.activate(path)
@@ -63,6 +64,10 @@ function M.activate(path)
 			)
 			return nil
 		end
+		vim.notify(
+			"matugen: created custom_templates dir: " .. vim.fn.fnamemodify(dest, ":~"),
+			vim.log.levels.INFO
+		)
 	end
 	M.set_custom(dest)
 	return dest
