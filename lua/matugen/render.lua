@@ -248,13 +248,13 @@ return function(M)
 		local c
 
 		if w and next(w) ~= nil and not validator.is_valid(w) then
-			if not M._invalid_warned then
-				notify(
-					"palette contains invalid or incomplete color values, using fallback",
-					vim.log.levels.WARN
-				)
-				M._invalid_warned = true
-			end
+			-- Not latched: a palette that is still broken on the next reload is
+			-- still worth reporting, and every reload that drops to the fallback
+			-- means the user is looking at the wrong colors.
+			notify(
+				"palette contains invalid or incomplete color values, using fallback",
+				vim.log.levels.WARN
+			)
 			c = {}
 		else
 			local palette = require("matugen.palette")
