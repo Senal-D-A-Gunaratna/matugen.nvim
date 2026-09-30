@@ -40,7 +40,7 @@ Example configuration with lazy.nvim:
   opts = {
     palette_path = "~/.cache/matugen/nvim-colors.json",
     -- load_theme = false, -- uncomment to stop the plugin from auto-applying itself as your colorscheme
-    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional: own templates dir
+    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional: custom templates overlay
   },
 },
 <
@@ -54,13 +54,17 @@ and sets itself as the active colorscheme on setup — no extra
 `vim.cmd.colorscheme(...)` call needed. Set it to `false` if you'd rather
 apply the colorscheme yourself.
 
-`custom_templates` (optional) points to a directory that replaces the
-plugin's built-in template directory. On setup the plugin creates the
-directory if it doesn't exist, copies any built-in template files it's
-missing (existing files are never overwritten), and loads templates from
-it from then on. Edit the copied files to tweak or drop templates without
-touching plugin code; add a template by placing a Lua file there. Leave
-empty to use the built-in templates.
+`custom_templates` (optional) points to a directory of your own templates
+that is layered on top of the plugin's built-in templates. Built-in
+templates are loaded first, followed by your custom ones, so a custom
+template only needs to set the highlight groups you actually want to
+change — they win because they are applied afterwards. To replace a
+built-in template in its entirety, create a file in `custom_templates`
+with the same name as the built-in template; it may be empty, which
+disables the built-in template altogether, or implement your own
+configuration. The directory is never created for you and built-in
+template files are never copied into it. Leave empty to use the built-in
+templates only.
 
 Settings:
   `palette_path`       (string)  Path to the matugen JSON palette file.
@@ -69,9 +73,9 @@ Settings:
   `load_theme`         (boolean) Whether to load the theme on startup.
                                  Default: `true`.
 
-  `custom_templates`   (string)  Directory to load templates from instead
-                                 of the built-in one. Empty by default —
-                                 use the built-in templates.
+  `custom_templates`   (string)  Directory of custom templates loaded
+                                 alongside the built-in ones.
+                                 Default: `""` (empty — built-in only).
 
 Colors can be tweaked without touching any plugin code by editing your
 `nvim-colors.json` template directly. Each semantic key (e.g.
@@ -119,10 +123,9 @@ programmatic use in your config or autocmds.
 				- `load_theme`		(boolean) Whether to load
 					the theme on startup. Default: true.
 				- `custom_templates`	(string, optional) Directory
-					to load templates from instead of
-					the built-in one. Created and
-					filled with missing built-in
-					templates on setup. Default: "".
+					of custom templates loaded
+					alongside the built-in ones.
+					Default: "".
 
 	Example:
 	>lua
@@ -183,24 +186,29 @@ programmatic use in your config or autocmds.
 
 `set_templates_dir(path)`				*matugen-api-set_templates_dir*
 
-	Points the templates directory at `path` and clears the template
-	cache so the next `load`/`load_theme` re-reads from the new
-	directory. Pass `nil` (or `""`) to fall back to the plugin's
-	built-in templates. Unlike `custom_templates`, this does not sync
-	the directory or create it.
+	Points the custom templates directory at `path` and clears the
+	template cache so the next `load`/`load_theme` re-reads the
+	built-in and custom templates. Pass `nil` (or `""`) to fall back
+	to the plugin's built-in templates only. Unlike `custom_templates`,
+	this does not validate that the directory exists: a missing
+	directory is reported and only the built-in templates are loaded.
+	The path is kept as it is, so creating the directory afterwards
+	plus `:MatugenReload` is enough to start loading its templates.
+	`:checkhealth` reports such a directory as a warning.
 
 `builtin_templates_dir`				*matugen-api-builtin_templates_dir*
 	Internal string: the absolute path of the plugin's built-in
 	templates directory, resolved once at load. Useful when pointing
-	`custom_templates` elsewhere or reporting the active templates dir.
+	`custom_templates` elsewhere or reporting which directories are
+	active.
 
-Templates are loaded from the active templates directory — the user's
-`custom_templates` directory when configured, else the plugin's built-in
-`lua/matugen/templates/`. The built-in directory is pinned to the plugin's
-own install location to prevent rogue plugins from injecting files via
-runtimepath; a custom directory is user-chosen and therefore trusted. Each
-file must return a function accepting `(c, hl)` where `c` is the color
-palette table and `hl` is a wrapper around `vim.api.nvim_set_hl`.
+Templates are loaded from the built-in directory plus the custom one
+layered over it (see `custom_templates` above). The built-in directory
+is pinned to the plugin's own install location to prevent rogue plugins
+from injecting files via runtimepath; a custom directory is user-chosen
+and therefore trusted. Each file must return a function accepting
+`(c, hl)` where `c` is the color palette table and `hl` is a wrapper
+around `vim.api.nvim_set_hl`.
 
 `_status`						*matugen-api-_status*
 	Internal string field reflecting the last load status (e.g.,
@@ -228,9 +236,11 @@ This command checks:
   - Palette file existence, readability, and JSON parse validity.
   - All color values in the palette are valid hex codes.
   - Loaded palette path, active templates dir, last reload timestamp,
-    active template count, and overall load status. The active
-    templates dir is reported as `built-in` unless a custom directory
-    is configured, in which case its path is shown.
+    active template count, and overall load status. The active templates
+    directory is reported as `built-in`, or `built-in` + overlay if a custom
+    directory is configured. A custom directory that does not exist is
+    reported as a warning instead, since only the built-in templates are
+    loaded.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:
