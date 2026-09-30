@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **A custom template that fails to load no longer disables the built-in of
   the same name.** The shadow map in `render.lua` was built from custom file
-  names *before* they were loaded, so a single syntax error dropped a
+  names _before_ they were loaded, so a single syntax error dropped a
   built-in template's highlights (34 → 33) behind one warning line. Custom
   files are now classified first — blank file disables, loadable file
   replaces, broken file replaces nothing — so the built-in survives a typo.
