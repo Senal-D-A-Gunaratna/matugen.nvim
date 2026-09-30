@@ -10,10 +10,10 @@ Templates are loaded from the plugin's built-in `lua/matugen/templates/` plus, w
 
 Built-in templates are applied first and custom ones last, so a custom template always wins the highlight groups it sets. What a custom file does depends on its name:
 
-| File in `custom_templates`       | Effect                                                            |
-| ------------------------------- | ----------------------------------------------------------------- |
-| A new name (`my_lualine.lua`)   | Added to the set. It only overrides the groups it defines.         |
-| Same name as a built-in, with content or empty | Replaces that built-in template entirely and, if not empty, loads the defined groups.   |
+| File in `custom_templates`                     | Effect                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------- |
+| A new name (`my_lualine.lua`)                  | Added to the set. It only overrides the groups it defines.                            |
+| Same name as a built-in, with content or empty | Replaces that built-in template entirely and, if not empty, loads the defined groups. |
 
 ## Template Structure
 
