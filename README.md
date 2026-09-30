@@ -56,7 +56,9 @@ Set `load_theme = false` if you'd rather manage the colorscheme yourself and
 don't want the plugin to apply it automatically
 
 > If the palette file can't be loaded, the plugin falls back to a built-in
-> dark theme and notifies you.
+> dark theme and notifies you. Recovery is per color key: any key the palette
+> provides is used as-is, and only missing or non-hex ones take their color
+> from the fallback — the warning names them.
 
 ### 4. Terminal opacity (optional)
 

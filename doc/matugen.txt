@@ -46,8 +46,11 @@ Example configuration with lazy.nvim:
 <
 `palette_path` must point to a `.json` file. If the file is missing,
 unreadable, or contains invalid JSON, the plugin falls back to a built-in
-dark theme and notifies you. Missing color keys in the palette are filled
-from the fallback palette.
+dark theme and notifies you. Recovery is per color key: any key the
+palette provides is used as-is, and only the keys that are missing or not
+valid hex colors are filled from the fallback palette, so a single bad
+entry costs you that one color rather than the whole theme. Those keys
+are named in the warning.
 
 When `load_theme` is `true` (the default), the plugin loads the palette
 and sets itself as the active colorscheme on setup — no extra
@@ -153,9 +156,11 @@ programmatic use in your config or autocmds.
 	If the file is missing or fails to parse, a built-in dark fallback
 	palette is used and a warning is issued.
 
-	Color values are validated: every value must be a hex color
-	starting with `#`. If validation fails, the fallback palette is
-	used instead and a one-time warning is shown.
+	Color values are validated per key: every value must be a hex color
+	starting with `#`. A key that is missing or fails that check takes its
+	color from the fallback palette, and the warning names it; the rest of
+	the palette is still used. The warning is repeated on every reload, so
+	a palette that stays broken keeps saying so.
 
 	Parameters: ~
 		`on_done`	(function, optional) Callback invoked after all

@@ -13,16 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of reusing raw `primary`/`secondary`/`tertiary` for every group.**
   Four new required palette keys: `primary_fixed_dim`, `secondary_fixed_dim`,
   `tertiary_fixed_dim`, and `inverse_primary`. Existing generated palette
-  files lack these keys and will fail validation, falling back to the whole
-  fallback palette — re-copy the updated `nvim-colors.json` template and
-  re-run matugen to regenerate. See `doc/TEMPLATES.md` for the full key list.
+  files lack these keys, so just those four take their color from the
+  fallback palette and are named in the warning — re-copy the updated
+  `nvim-colors.json` template and re-run matugen to regenerate. See
+  `doc/TEMPLATES.md` for the full key list.
 
 - **Cursor color is now themed by shape, not by mode.** Three new required
   palette keys replace the per-mode semantic mapping: `cursor_block`
   (`primary`), `cursor_beam` (`tertiary`), and `cursor_underline`
-  (`secondary`). Existing generated palette files lack these keys and will
-  fail validation, falling back to the whole fallback palette — re-copy the
-  updated `nvim-colors.json` template and re-run matugen to regenerate.
+  (`secondary`). Existing generated palette files lack these keys, so just
+  those three fall back — re-copy the updated `nvim-colors.json` template and
+  re-run matugen to regenerate.
 
 ### Added
 
@@ -94,10 +95,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   either `keeping built-in <name>` or `ignored`; a broken built-in one is a
   plugin bug and stays at `WARN`. Previously both were an undifferentiated
   `WARN` reading `Failed to load template`.
+- **Palette fallback is now per key instead of all-or-nothing.** One
+  missing or non-hex value used to discard the entire palette and render
+  every highlight from `fallback_palette.lua`, so a single typo silently
+  swapped your Material You colors for the built-in VS Code Dark+ ones.
+  Every key the palette does provide is now used as-is, and only the
+  unusable keys take their color from the fallback.
 - **An invalid palette is reported on every reload, not just the first.**
-  The one-shot `_invalid_warned` latch meant that after a single warning the
-  fallback palette could keep taking over silently for the rest of the
-  session — while every reload still rendered the wrong colors. Note that
+  The one-shot `_invalid_warned` latch meant that after a single warning
+  the affected keys kept coming from the fallback silently for the rest of
+  the session. The warning now names the offending keys (capped at six,
+  then `(+N more)`) so the entry to fix is obvious. Note that
   `load_theme()` applies highlights twice per call, so a broken palette
   warns twice per reload.
 - **Cursor redraw now lives in `load_theme()` rather than `_apply_highlights()`.** `guicursor` is assigned synchronously in `setup()`, but the
