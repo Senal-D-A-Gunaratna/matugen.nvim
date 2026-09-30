@@ -62,9 +62,9 @@ change — they win because they are applied afterwards. To replace a
 built-in template in its entirety, create a file in `custom_templates`
 with the same name as the built-in template; it may be empty, which
 disables the built-in template altogether, or implement your own
-configuration. The directory is never created for you and built-in
-template files are never copied into it. Leave empty to use the built-in
-templates only.
+configuration. The directory is created empty if it doesn't exist yet, and
+built-in template files are never copied into it. Leave empty to use the
+built-in templates only.
 
 Settings:
   `palette_path`       (string)  Path to the matugen JSON palette file.
