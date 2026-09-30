@@ -47,36 +47,84 @@ return function(M)
 		)
 	end
 
-	--- @return fun(table, fun(string, table):nil)[]
+	--- @param file string
+	--- @return fun(table, hl: fun(string, table):nil)?
+	local function _try_load(file)
+		local chunk, err = loadfile(file)
+		if not chunk then
+			notify("Failed to load template " .. file .. ": " .. tostring(err), vim.log.levels.WARN)
+			return nil
+		end
+		local ok_chunk, res = pcall(chunk)
+		if ok_chunk and type(res) == "function" then -- firma (c, hl)
+			return res
+		end
+		return nil
+	end
+
+	--- Every readable `*.lua` file in `dir`, sorted for a deterministic load
+	--- order. `filereadable` follows symlinks, so a symlinked template is
+	--- picked up; a missing directory yields an empty list.
+	--- @param dir string
+	--- @return string[] absolute paths
+	local function _discover(dir)
+		local files = {}
+		for name, _ in vim.fs.dir(dir) do
+			local file = dir .. "/" .. name
+			if file:match("%.lua$") then
+				if vim.fn.filereadable(file) == 1 then
+					table.insert(files, file)
+				end
+			end
+		end
+
+		table.sort(files)
+		return files
+	end
+
+	--- @return fun(table, hl: fun(string, table):nil)[]
 	local function _load_templates()
 		if M._templates then
 			return M._templates
 		end
-
 		local templates = {}
-		-- Templates are loaded from `templates_dir.get_active()`, which is
-		-- the user's `custom_templates` directory when configured, else the
-		-- plugin's own built-in directory. The built-in dir is pinned to
-		-- this plugin's install location (resolved from this module's own
-		-- path), so a rogue plugin can't shadow or inject template files via
-		-- runtimepath. A custom dir is user-chosen and therefore trusted.
-		local _real_tpl_dir = templates_dir.get_active()
 
-		for name, ftype in vim.fs.dir(_real_tpl_dir) do
-			if ftype == "file" and name:match("%.lua$") then
-				local file = _real_tpl_dir .. "/" .. name
-				local chunk, err = loadfile(file)
-				if chunk then
-					local ok_chunk, res = pcall(chunk)
-					if ok_chunk and type(res) == "function" then
-						table.insert(templates, res)
-					end
-				else
-					notify(
-						"Failed to load template " .. file .. ": " .. tostring(err),
-						vim.log.levels.WARN
-					)
+		-- Built-in templates are loaded first and the custom ones last, so a
+		-- custom template only needs to set the highlight groups it cares
+		-- about: they win because they are applied afterwards. A custom file
+		-- sharing a name with a built-in one replaces it wholesale, which is
+		-- also how a built-in is disabled — an empty custom file loads to no
+		-- template at all, and the built-in is skipped.
+		-- The built-in dir is pinned to this plugin's own install location
+		-- (resolved in templates_dir.lua from that module's own path), so a
+		-- rogue plugin can't shadow or inject template files via runtimepath.
+		-- A custom dir is user-chosen and therefore trusted.
+		local custom_dir = templates_dir.is_custom() and templates_dir.get_active() or nil
+		if custom_dir == templates_dir.builtin then
+			custom_dir = nil
+		end
+
+		local builtin_files = templates_dir.builtin and _discover(templates_dir.builtin) or {}
+		local custom_files = custom_dir and _discover(custom_dir) or {}
+
+		local replaced = {}
+		for _, file in ipairs(custom_files) do
+			replaced[vim.fs.basename(file)] = true
+		end
+
+		for _, file in ipairs(builtin_files) do
+			if not replaced[vim.fs.basename(file)] then
+				local fn = _try_load(file)
+				if fn then
+					table.insert(templates, fn)
 				end
+			end
+		end
+
+		for _, file in ipairs(custom_files) do
+			local fn = _try_load(file)
+			if fn then
+				table.insert(templates, fn)
 			end
 		end
 
@@ -88,12 +136,21 @@ return function(M)
 		M._templates = nil
 	end
 
-	--- Point the templates directory elsewhere and drop the template cache
-	--- so the next load re-reads from the new directory. Pass nil (or "") to
-	--- fall back to the plugin's built-in templates.
+	--- Point the custom templates directory elsewhere and drop the template
+	--- cache so the next load re-reads the built-in and custom templates. Pass
+	--- nil (or "") to fall back to the plugin's built-in templates only. Unlike
+	--- `custom_templates`, this does not validate that the directory exists; a
+	--- missing one is reported and only the built-in templates are loaded.
 	--- @param path? string
 	local function set_templates_dir(path)
 		templates_dir.set_custom(path)
+		local active = templates_dir.get_active()
+		if templates_dir.is_custom() and vim.fn.isdirectory(active) == 0 then
+			notify(
+				"custom_templates dir not found, using built-in templates only: " .. active,
+				vim.log.levels.WARN
+			)
+		end
 		M._templates = nil
 	end
 

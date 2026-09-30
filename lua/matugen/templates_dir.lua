@@ -5,14 +5,15 @@ local M = {}
 --- Resolve the built-in templates directory from this file's own location
 --- rather than the runtimepath, so a rogue plugin can't shadow or inject
 --- templates. Stored once as an internal variable so other modules (and the
---- `custom_templates` option) can point the templates source elsewhere.
+--- `custom_templates` option) can layer custom templates on top of it.
 local _self = debug.getinfo(1, "S").source:sub(2)
 local _plugin_lua_dir = _self:match("^(.*)/templates_dir%.lua$")
 
 --- Absolute path of the plugin's own templates directory.
 M.builtin = _plugin_lua_dir and vim.fn.resolve(_plugin_lua_dir .. "/templates") or nil
 
---- @type string? active templates directory; nil means built-in
+--- @type string? custom templates directory layered over the built-in one;
+--- nil means the built-in directory is the only source
 local custom = nil
 
 --- @param path? string
@@ -29,7 +30,7 @@ function M.set_custom(path)
 	custom = _resolve(path)
 end
 
---- @return string? active templates directory (custom if set, else built-in)
+--- @return string? custom templates directory if set, else the built-in one
 function M.get_active()
 	return custom or M.builtin
 end
@@ -39,42 +40,23 @@ function M.is_custom()
 	return custom ~= nil
 end
 
---- Ensure `path` exists, fill it with any built-in template files it is
---- missing (existing files are never overwritten), and activate it as the
---- templates directory.
+--- Validate `path` and activate it as the custom templates directory, which
+--- is then layered on top of the built-in templates. The directory is never
+--- created and built-in templates are never copied into it, so a missing
+--- directory is reported and leaves the built-in templates as the only source.
 --- @param path string
---- @return string? resolved path, or nil on failure
-function M.sync(path)
+--- @return string? resolved path, or nil if unset or missing
+function M.activate(path)
 	local dest = _resolve(path)
 	if not dest then
 		return nil
 	end
 	if vim.fn.isdirectory(dest) == 0 then
-		pcall(vim.fn.mkdir, dest, "p")
-		if vim.fn.isdirectory(dest) == 0 then
-			vim.notify(
-				"matugen: could not create custom_templates dir: " .. dest,
-				vim.log.levels.WARN
-			)
-			return nil
-		end
-	end
-	if M.builtin then
-		local uv = vim.uv or vim.loop
-		for name, ftype in vim.fs.dir(M.builtin) do
-			if ftype == "file" then
-				local target = dest .. "/" .. name
-				if vim.fn.filereadable(target) == 0 then
-					local ok_copy = pcall(uv.fs_copyfile, M.builtin .. "/" .. name, target)
-					if not ok_copy or vim.fn.filereadable(target) == 0 then
-						vim.notify(
-							"matugen: could not copy template " .. name .. " to " .. target,
-							vim.log.levels.WARN
-						)
-					end
-				end
-			end
-		end
+		vim.notify(
+			"matugen: could not find custom_templates dir, using built-in templates only: " .. dest,
+			vim.log.levels.WARN
+		)
+		return nil
 	end
 	M.set_custom(dest)
 	return dest
