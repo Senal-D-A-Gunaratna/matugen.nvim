@@ -42,7 +42,8 @@ post_hook = "pkill -SIGUSR1 nvim"
   opts = {
     palette_path = "~/.cache/matugen/nvim-colors.json",
     -- load_theme = false,
-    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional: custom templates overlay
+    -- custom_templates = "~/.config/nvim/matugen-templates",
+    --   optional: custom templates overlay
   },
 },
 ```
@@ -127,8 +128,8 @@ Built-in templates live in `lua/matugen/templates`:
 - [lualine.nvim](lua/matugen/templates/lualine.lua)
 - [mason.nvim](lua/matugen/templates/mason.lua)
 - [mini.nvim](lua/matugen/templates/mini.lua)
-- [neo-tree.nvim](lua/matugen/templates/neo_tree.lua)
 - [neominimap.nvim](lua/matugen/templates/neominimap.lua)
+- [neo-tree.nvim](lua/matugen/templates/neo_tree.lua)
 - [noice.nvim](lua/matugen/templates/noice.lua)
 - [nvim-tree.nvim](lua/matugen/templates/nvim_tree.lua)
 - [oil.nvim](lua/matugen/templates/oil.lua)
