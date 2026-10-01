@@ -179,6 +179,34 @@ function M.check()
 	else
 		health.info("Templates dir: built-in")
 	end
+
+	-- A custom file that fails to load is skipped, and while any are broken the
+	-- whole theme is rendered from the fallback palette — which looks like a
+	-- palette problem, so it has to be reported here too or it is a silent
+	-- mystery.
+	local failed = matugen._custom_failed or {}
+	if #failed > 0 then
+		local advice = {}
+		for _, f in ipairs(failed) do
+			table.insert(
+				advice,
+				string.format(
+					"%s: %s%s",
+					vim.fn.fnamemodify(f.file, ":~"),
+					f.reason,
+					f.kept and (" (built-in " .. f.base .. " kept)") or ""
+				)
+			)
+		end
+		table.insert(advice, "Fix the file(s), then run :MatugenReload to re-read them.")
+		health.error(string.format("Custom templates: %d failed to load", #failed), advice)
+		health.warn(
+			"Colors in use: fallback_palette.lua — a broken custom template forces the built-in colors"
+		)
+	elseif templates_dir.is_custom() then
+		health.info("Custom templates: all loaded")
+	end
+
 	health.info(string.format("Active Templates count: %d", count))
 	health.info(string.format("Last Reload: %s", last))
 end

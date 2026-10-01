@@ -46,8 +46,11 @@ Example configuration with lazy.nvim:
 <
 `palette_path` must point to a `.json` file. If the file is missing,
 unreadable, or contains invalid JSON, the plugin falls back to a built-in
-dark theme and notifies you. Missing color keys in the palette are filled
-from the fallback palette.
+dark theme and notifies you. Recovery is per color key: any key the
+palette provides is used as-is, and only the keys that are missing or not
+valid hex colors are filled from the fallback palette, so a single bad
+entry costs you that one color rather than the whole theme. Those keys
+are named in the warning.
 
 When `load_theme` is `true` (the default), the plugin loads the palette
 and sets itself as the active colorscheme on setup — no extra
@@ -58,13 +61,18 @@ apply the colorscheme yourself.
 that is layered on top of the plugin's built-in templates. Built-in
 templates are loaded first, followed by your custom ones, so a custom
 template only needs to set the highlight groups you actually want to
-change — they win because they are applied afterwards. To replace a
-built-in template in its entirety, create a file in `custom_templates`
-with the same name as the built-in template; it may be empty, which
-disables the built-in template altogether, or implement your own
-configuration. The directory is never created for you and built-in
-template files are never copied into it. Leave empty to use the built-in
-templates only.
+change — they win because they are applied afterwards. What a custom
+file does depends on its name and its content: a new name adds a
+template, a name matching a built-in one replaces it, and a blank file
+with that same name disables the built-in template altogether. A custom
+file that fails to load is reported as an error and ignored, leaving the
+built-in template of the same name in place, so a typo can't silently
+drop a plugin's highlights. Fix the file and run |:MatugenReload| to
+re-read it. Only the top level of the directory is scanned, so a `.lua`
+file in a subdirectory is ignored. The directory is created empty if it
+doesn't exist yet, and creating it is reported; built-in template files
+are never copied into it. Leave empty to use the built-in templates
+only.
 
 Settings:
   `palette_path`       (string)  Path to the matugen JSON palette file.
@@ -148,9 +156,18 @@ programmatic use in your config or autocmds.
 	If the file is missing or fails to parse, a built-in dark fallback
 	palette is used and a warning is issued.
 
-	Color values are validated: every value must be a hex color
-	starting with `#`. If validation fails, the fallback palette is
-	used instead and a one-time warning is shown.
+	Color values are validated per key: every value must be a hex color
+	starting with `#`. A key that is missing or fails that check takes its
+	color from the fallback palette, and the warning names it; the rest of
+	the palette is still used. The warning is repeated on every reload, so
+	a palette that stays broken keeps saying so.
+
+	A custom template that fails to load — or that throws while applying
+	its highlight groups — is reported and the built-in template of the
+	same name is kept. Because such a customization is silently not in
+	effect, the entire theme is then rendered from the fallback colors
+	instead of the palette, until the file is fixed and templates are
+	reloaded. `:checkhealth matugen` lists the failing files.
 
 	Parameters: ~
 		`on_done`	(function, optional) Callback invoked after all

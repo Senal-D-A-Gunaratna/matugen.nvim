@@ -42,7 +42,7 @@ post_hook = "pkill -SIGUSR1 nvim"
   opts = {
     palette_path = "~/.cache/matugen/nvim-colors.json",
     -- load_theme = false,
-    -- custom_templates = "~/.config/nvim/matugen-templates", -- optional: custom templates overlay
+    -- custom_templates = "~/.config/nvim/matugen-templates",
   },
 },
 ```
@@ -53,9 +53,6 @@ needed
 
 Set `load_theme = false` if you'd rather manage the colorscheme yourself and
 don't want the plugin to apply it automatically
-
-> If the palette file can't be loaded, the plugin falls back to a built-in
-> dark theme and notifies you.
 
 ### 4. Terminal opacity (optional)
 
@@ -92,6 +89,23 @@ or, from inside Neovim:
 :MatugenReload
 ```
 
+## Fallbacks
+
+The plugin always ends up with a usable theme, and tells you when it isn't
+rendering the palette you expected:
+
+- **Palette file missing or unparseable** — the built-in dark theme is used
+  and you get a warning. Recovery is per color key: keys the palette provides
+  are used as-is, only missing or non-hex ones take their color from the
+  fallback, and the warning names them
+- **A file in `custom_templates` fails to load** — the built-in template of
+  the same name is used and the whole theme renders from the fallback colors,
+  because a customization you believe is active but isn't is worse than an
+  obvious one. Fix the file and run `:MatugenReload`
+
+`:checkhealth matugen` lists any failures and which palette is in use. See
+[Creating Custom Templates](doc/TEMPLATES.md) for the full rules
+
 ## Health check
 
 ```vim
@@ -127,8 +141,8 @@ Built-in templates live in `lua/matugen/templates`:
 - [lualine.nvim](lua/matugen/templates/lualine.lua)
 - [mason.nvim](lua/matugen/templates/mason.lua)
 - [mini.nvim](lua/matugen/templates/mini.lua)
-- [neo-tree.nvim](lua/matugen/templates/neo_tree.lua)
 - [neominimap.nvim](lua/matugen/templates/neominimap.lua)
+- [neo-tree.nvim](lua/matugen/templates/neo_tree.lua)
 - [noice.nvim](lua/matugen/templates/noice.lua)
 - [nvim-tree.nvim](lua/matugen/templates/nvim_tree.lua)
 - [oil.nvim](lua/matugen/templates/oil.lua)
@@ -161,9 +175,12 @@ opts = {
 ```
 
 Nothing is copied out of the plugin, so updates never overwrite your
-work. To replace a built-in template in its entirety, create a file with
-the same name as the built-in template; it may be empty, which disables
-the built-in template altogether, or implement your own configuration.
+work. If the directory doesn't exist yet, it's created empty and
+you're notified. A file that matches a built-in template's name replaces
+it; the same name with a blank file disables it. A file that fails to
+load is reported as an error and ignored, so the built-in stays rather
+than silently losing its highlights — fix it and run `:MatugenReload`.
+Only the top level of the directory is scanned.
 Add a template by dropping a Lua file into that directory, then run
 `:MatugenReload`.
 
