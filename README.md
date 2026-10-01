@@ -43,7 +43,6 @@ post_hook = "pkill -SIGUSR1 nvim"
     palette_path = "~/.cache/matugen/nvim-colors.json",
     -- load_theme = false,
     -- custom_templates = "~/.config/nvim/matugen-templates",
-    --   optional: custom templates overlay
   },
 },
 ```
@@ -54,16 +53,6 @@ needed
 
 Set `load_theme = false` if you'd rather manage the colorscheme yourself and
 don't want the plugin to apply it automatically
-
-> If the palette file can't be loaded, the plugin falls back to a built-in
-> dark theme and notifies you. Recovery is per color key: any key the palette
-> provides is used as-is, and only missing or non-hex ones take their color
-> from the fallback — the warning names them.
->
-> A broken file in `custom_templates` is treated more strictly, because it's a
-> customization you believe is active but isn't: the built-in template of the
-> same name is used instead, and the whole theme is rendered from the fallback
-> colors until the file is fixed. `:checkhealth matugen` lists the failures.
 
 ### 4. Terminal opacity (optional)
 
@@ -99,6 +88,23 @@ or, from inside Neovim:
 ```vim
 :MatugenReload
 ```
+
+## Fallbacks
+
+The plugin always ends up with a usable theme, and tells you when it isn't
+rendering the palette you expected:
+
+- **Palette file missing or unparseable** — the built-in dark theme is used
+  and you get a warning. Recovery is per color key: keys the palette provides
+  are used as-is, only missing or non-hex ones take their color from the
+  fallback, and the warning names them
+- **A file in `custom_templates` fails to load** — the built-in template of
+  the same name is used and the whole theme renders from the fallback colors,
+  because a customization you believe is active but isn't is worse than an
+  obvious one. Fix the file and run `:MatugenReload`
+
+`:checkhealth matugen` lists any failures and which palette is in use. See
+[Creating Custom Templates](doc/TEMPLATES.md) for the full rules
 
 ## Health check
 
