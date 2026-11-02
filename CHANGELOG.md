@@ -164,6 +164,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Repository history was squashed from 304 commits down to 14.** This
+  changelog entry is a separate documentation commit, bringing the current
+  total to 15. This was a history-only rewrite: no plugin functionality was
+  changed or harmed. Pull request commits and issue-referencing commits were
+  preserved verbatim, so existing PR and issue material remains intact.
 - **`:checkhealth matugen` no longer prints the plugin's install path for
   templates.** The `Templates dir` line reads `built-in` when the built-in
   `lua/matugen/templates/` directory is active, and only shows a filesystem
